@@ -5,10 +5,10 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-async function getUpcomingLots(searchParams: PageProps['searchParams']) {
+async function getUpcomingLots(searchParams: { [key: string]: string | string[] | undefined }) {
   const supabase = await createServerSupabaseClient();
   
   let query = supabase
@@ -85,7 +85,8 @@ function LoadingSkeleton() {
 }
 
 export default async function UpcomingAuctionsPage({ searchParams }: PageProps) {
-  const lots = await getUpcomingLots(searchParams);
+  const params = await searchParams;
+  const lots = await getUpcomingLots(params);
 
   return (
     <div className="container mx-auto px-4 py-8">
