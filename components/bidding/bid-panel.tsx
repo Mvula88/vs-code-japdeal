@@ -60,7 +60,7 @@ export default function BidPanel({
           table: 'lots',
           filter: `id=eq.${lot.id}`,
         },
-        (payload: any) => {
+        (payload) => {
           if (payload.new.current_price) {
             setCurrentPrice(payload.new.current_price);
           }
@@ -113,7 +113,7 @@ export default function BidPanel({
       setBidAmount('');
       setCurrentPrice(amount);
       onBidPlaced?.();
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to place bid');
       setOptimisticPrice(currentPrice);
     } finally {

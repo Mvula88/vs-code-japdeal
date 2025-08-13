@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       message: 'Bid placed successfully',
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Bid API error:', error);
     return NextResponse.json(
       { error: 'An unexpected error occurred' },
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ bids });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Bids API error:', error);
     return NextResponse.json(
       { error: 'An unexpected error occurred' },

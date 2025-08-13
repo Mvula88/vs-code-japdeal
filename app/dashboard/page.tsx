@@ -140,7 +140,7 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{watchlistCount}</div>
             <p className="text-xs text-muted-foreground">
-              Lots you're watching
+              Lots you&apos;re watching
             </p>
           </CardContent>
         </Card>

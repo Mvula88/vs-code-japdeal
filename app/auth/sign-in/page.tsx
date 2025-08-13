@@ -35,7 +35,7 @@ export default function SignInPage() {
 
       router.push(ROUTES.HOME);
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
       setError(error.message || 'An error occurred during sign in');
     } finally {
       setIsLoading(false);
@@ -62,7 +62,7 @@ export default function SignInPage() {
       if (error) throw error;
 
       setError('Check your email for the magic link!');
-    } catch (error: any) {
+    } catch (error) {
       setError(error.message || 'An error occurred sending the magic link');
     } finally {
       setIsLoading(false);
@@ -138,7 +138,7 @@ export default function SignInPage() {
               Send magic link
             </Button>
             <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href={ROUTES.AUTH.SIGN_UP} className="font-medium hover:underline">
                 Sign up
               </Link>

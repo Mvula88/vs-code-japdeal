@@ -29,7 +29,7 @@ export default function BidHistory({ lotId, initialBids }: BidHistoryProps) {
           table: 'bids',
           filter: `lot_id=eq.${lotId}`,
         },
-        async (payload: any) => {
+        async (payload) => {
           const { data: newBid } = await supabase
             .from('bids')
             .select('*, bidder:profiles(display_name)')

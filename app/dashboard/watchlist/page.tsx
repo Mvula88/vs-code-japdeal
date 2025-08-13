@@ -43,7 +43,7 @@ export default async function WatchlistPage() {
       <div>
         <h1 className="text-3xl font-bold mb-2">My Watchlist</h1>
         <p className="text-muted-foreground">
-          You're watching {watchlist.length} {watchlist.length === 1 ? 'lot' : 'lots'}
+          You&apos;re watching {watchlist.length} {watchlist.length === 1 ? 'lot' : 'lots'}
         </p>
       </div>
 
@@ -53,7 +53,7 @@ export default async function WatchlistPage() {
           <h2 className="text-xl font-semibold">Live Auctions</h2>
           <div className="grid gap-4">
             {liveLots.map(({ lot }) => {
-              const thumbnailImage = lot.images?.find((img: any) => img.is_thumbnail) || lot.images?.[0];
+              const thumbnailImage = lot.images?.find((img: { is_thumbnail: boolean }) => img.is_thumbnail) || lot.images?.[0];
               
               return (
                 <Card key={lot.id}>
@@ -127,7 +127,7 @@ export default async function WatchlistPage() {
           <h2 className="text-xl font-semibold">Upcoming Auctions</h2>
           <div className="grid gap-4">
             {upcomingLots.map(({ lot }) => {
-              const thumbnailImage = lot.images?.find((img: any) => img.is_thumbnail) || lot.images?.[0];
+              const thumbnailImage = lot.images?.find((img: { is_thumbnail: boolean }) => img.is_thumbnail) || lot.images?.[0];
               
               return (
                 <Card key={lot.id}>
@@ -187,7 +187,7 @@ export default async function WatchlistPage() {
           <h2 className="text-xl font-semibold">Ended Auctions</h2>
           <div className="grid gap-4">
             {endedLots.map(({ lot }) => {
-              const thumbnailImage = lot.images?.find((img: any) => img.is_thumbnail) || lot.images?.[0];
+              const thumbnailImage = lot.images?.find((img: { is_thumbnail: boolean }) => img.is_thumbnail) || lot.images?.[0];
               
               return (
                 <Card key={lot.id}>

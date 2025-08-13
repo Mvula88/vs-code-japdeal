@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUser } from '@/lib/utils/auth';
-import { formatCurrency, formatTimeAgo, formatDateTime } from '@/lib/utils/format';
+import { formatCurrency, formatTimeAgo } from '@/lib/utils/format';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, TrendingUp } from 'lucide-react';
@@ -69,14 +69,14 @@ export default async function ActiveBidsPage() {
       <div>
         <h1 className="text-3xl font-bold mb-2">Active Bids</h1>
         <p className="text-muted-foreground">
-          You're currently bidding on {activeBids.length} {activeBids.length === 1 ? 'auction' : 'auctions'}
+          You&apos;re currently bidding on {activeBids.length} {activeBids.length === 1 ? 'auction' : 'auctions'}
         </p>
       </div>
 
       {activeBids.length > 0 ? (
         <div className="grid gap-4">
           {activeBids.map(({ lot, userBid, highestBid, isWinning }) => {
-            const thumbnailImage = lot.images?.find((img: any) => img.is_thumbnail) || lot.images?.[0];
+            const thumbnailImage = lot.images?.find((img: { is_thumbnail: boolean }) => img.is_thumbnail) || lot.images?.[0];
             
             return (
               <Card key={lot.id}>
@@ -152,7 +152,7 @@ export default async function ActiveBidsPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground mb-4">
-              You don't have any active bids at the moment
+              You don&apos;t have any active bids at the moment
             </p>
             <Link href="/auctions/live">
               <Button>Browse Live Auctions</Button>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +16,6 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -33,7 +31,7 @@ export default function ResetPasswordPage() {
       if (error) throw error;
 
       setSuccess(true);
-    } catch (error: any) {
+    } catch (error) {
       setError(error.message || 'An error occurred sending the reset email');
     } finally {
       setIsLoading(false);
@@ -47,7 +45,7 @@ export default function ResetPasswordPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
             <CardDescription>
-              We've sent you a password reset link to {email}
+              We&apos;ve sent you a password reset link to {email}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -71,7 +69,7 @@ export default function ResetPasswordPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Reset your password</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a reset link
+            Enter your email address and we&apos;ll send you a reset link
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleResetPassword}>

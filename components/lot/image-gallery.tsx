@@ -9,7 +9,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 interface ImageGalleryProps {
-  images: any[];
+  images: { id: string; file_path: string; is_thumbnail?: boolean; display_order: number }[];
   carTitle: string;
 }
 

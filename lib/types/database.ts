@@ -28,7 +28,7 @@ export interface Car {
   engine: string | null;
   color: string | null;
   origin_market: string | null;
-  specs: Record<string, any>;
+  specs: Record<string, unknown>;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -111,7 +111,7 @@ export interface Invoice {
   issued_at: string | null;
   paid_at: string | null;
   due_date: string | null;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   created_at: string;
   updated_at: string;
   user?: Profile;
@@ -132,7 +132,7 @@ export interface Notification {
   type: NotificationType;
   title: string;
   message: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   read_at: string | null;
   created_at: string;
 }
@@ -143,7 +143,7 @@ export interface AuditLog {
   action: string;
   entity: string;
   entity_id: string | null;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   ip_address: string | null;
   user_agent: string | null;
   created_at: string;
@@ -209,14 +209,14 @@ export interface Database {
         Update: never;
       };
     };
-    Views: {};
+    Views: object;
     Functions: {
       is_admin: {
-        Args: {};
+        Args: object;
         Returns: boolean;
       };
       is_user_active: {
-        Args: {};
+        Args: object;
         Returns: boolean;
       };
       can_user_bid: {
@@ -227,7 +227,7 @@ export interface Database {
         Returns: boolean;
       };
       generate_lot_number: {
-        Args: {};
+        Args: object;
         Returns: string;
       };
     };

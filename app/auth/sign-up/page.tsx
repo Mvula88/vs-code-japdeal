@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +19,6 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -55,7 +53,7 @@ export default function SignUpPage() {
       if (error) throw error;
 
       setSuccess(true);
-    } catch (error: any) {
+    } catch (error) {
       setError(error.message || 'An error occurred during sign up');
     } finally {
       setIsLoading(false);
@@ -69,7 +67,7 @@ export default function SignUpPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
             <CardDescription>
-              We've sent you a confirmation link to {email}
+              We&apos;ve sent you a confirmation link to {email}
             </CardDescription>
           </CardHeader>
           <CardContent>

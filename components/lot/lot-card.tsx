@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
 
 interface LotCardProps {
   lot: Lot & {
-    car?: any;
-    images?: any[];
+    car?: { make: string; model: string; year: number; mileage: number; fuel_type?: string };
+    images?: { id: string; file_path: string; is_thumbnail?: boolean }[];
   };
   showPrices?: boolean;
 }

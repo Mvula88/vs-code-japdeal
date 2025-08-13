@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, LogOut, Settings, LayoutDashboard, Shield } from 'lucide-react';
+import { LogOut, Settings, LayoutDashboard, Shield } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,7 @@ import { Profile } from '@/lib/types/database';
 import { cn } from '@/lib/utils';
 
 interface NavbarProps {
-  user: any;
+  user: { email?: string; user_metadata?: { avatar_url?: string } } | null;
   profile: Profile | null;
 }
 

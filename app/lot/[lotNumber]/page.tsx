@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import BidPanel from '@/components/bidding/bid-panel';
 import BidHistory from '@/components/bidding/bid-history';
@@ -14,7 +13,7 @@ import ImageGallery from '@/components/lot/image-gallery';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUser, getProfile, canBid } from '@/lib/utils/auth';
 import { formatMileage, formatDateTime } from '@/lib/utils/format';
-import { ArrowLeft, Calendar, Fuel, Gauge, Settings, MapPin, Car } from 'lucide-react';
+import { Calendar, Fuel, Gauge, Settings, MapPin, Car } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 
 interface PageProps {
@@ -57,7 +56,7 @@ async function getLotDetails(lotNumber: string) {
 
   // Sort bids by amount descending
   if (lot.bids) {
-    lot.bids.sort((a: any, b: any) => b.amount - a.amount);
+    lot.bids.sort((a: { amount: number }, b: { amount: number }) => b.amount - a.amount);
   }
 
   return {
@@ -98,7 +97,6 @@ export default async function LotDetailPage({ params }: PageProps) {
   const userCanBid = canBid(profile);
   
   const relatedLots = await getRelatedLots(lot.car.make, lot.id);
-  const thumbnailImage = lot.images?.find((img: any) => img.is_thumbnail) || lot.images?.[0];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -323,7 +321,7 @@ export default async function LotDetailPage({ params }: PageProps) {
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Similar Vehicles</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            {relatedLots.map((relatedLot: any) => (
+            {relatedLots.map((relatedLot) => (
               <Link key={relatedLot.id} href={ROUTES.LOT(relatedLot.lot_number)}>
                 <Card className="hover:shadow-lg transition-shadow">
                   <div className="aspect-[4/3] relative">

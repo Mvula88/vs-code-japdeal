@@ -19,6 +19,7 @@ export default function WatchlistButton({ lotId, className }: WatchlistButtonPro
 
   useEffect(() => {
     checkWatchlistStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lotId]);
 
   const checkWatchlistStatus = async () => {
@@ -69,7 +70,7 @@ export default function WatchlistButton({ lotId, className }: WatchlistButtonPro
         setIsWatched(true);
         toast.success('Added to watchlist');
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to update watchlist');
     } finally {
       setIsLoading(false);
