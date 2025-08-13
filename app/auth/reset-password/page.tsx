@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
 
       setSuccess(true);
     } catch (error) {
-      setError(error.message || 'An error occurred sending the reset email');
+      setError(error instanceof Error ? error.message : 'An error occurred sending the reset email');
     } finally {
       setIsLoading(false);
     }

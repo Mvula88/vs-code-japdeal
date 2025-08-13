@@ -36,7 +36,7 @@ export default function SignInPage() {
       router.push(ROUTES.HOME);
       router.refresh();
     } catch (error) {
-      setError(error.message || 'An error occurred during sign in');
+      setError(error instanceof Error ? error.message : 'An error occurred during sign in');
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +63,7 @@ export default function SignInPage() {
 
       setError('Check your email for the magic link!');
     } catch (error) {
-      setError(error.message || 'An error occurred sending the magic link');
+      setError(error instanceof Error ? error.message : 'An error occurred sending the magic link');
     } finally {
       setIsLoading(false);
     }

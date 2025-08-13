@@ -114,7 +114,7 @@ export default function BidPanel({
       setCurrentPrice(amount);
       onBidPlaced?.();
     } catch (error) {
-      toast.error(error.message || 'Failed to place bid');
+      toast.error(error instanceof Error ? error.message : 'Failed to place bid');
       setOptimisticPrice(currentPrice);
     } finally {
       setIsLoading(false);
