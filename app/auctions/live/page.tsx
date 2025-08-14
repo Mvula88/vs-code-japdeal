@@ -15,8 +15,8 @@ async function getLiveLots(searchParams: { [key: string]: string | string[] | un
     .from('lots')
     .select(`
       *,
-      car:cars(*),
-      images:lot_images(*)
+      cars!inner(*),
+      lot_images(*)
     `)
     .eq('state', 'live')
     .order('end_at', { ascending: true });
@@ -24,39 +24,39 @@ async function getLiveLots(searchParams: { [key: string]: string | string[] | un
   // Apply filters
   if (searchParams.search) {
     const searchTerm = String(searchParams.search);
-    query = query.or(`car.make.ilike.%${searchTerm}%,car.model.ilike.%${searchTerm}%`);
+    query = query.or(`cars.make.ilike.%${searchTerm}%,cars.model.ilike.%${searchTerm}%`);
   }
 
   if (searchParams.make) {
-    query = query.ilike('car.make', `%${searchParams.make}%`);
+    query = query.ilike('cars.make', `%${searchParams.make}%`);
   }
 
   if (searchParams.model) {
-    query = query.ilike('car.model', `%${searchParams.model}%`);
+    query = query.ilike('cars.model', `%${searchParams.model}%`);
   }
 
   if (searchParams.yearMin) {
-    query = query.gte('car.year', parseInt(String(searchParams.yearMin)));
+    query = query.gte('cars.year', parseInt(String(searchParams.yearMin)));
   }
 
   if (searchParams.yearMax) {
-    query = query.lte('car.year', parseInt(String(searchParams.yearMax)));
+    query = query.lte('cars.year', parseInt(String(searchParams.yearMax)));
   }
 
   if (searchParams.mileageMax) {
-    query = query.lte('car.mileage', parseInt(String(searchParams.mileageMax)));
+    query = query.lte('cars.mileage', parseInt(String(searchParams.mileageMax)));
   }
 
   if (searchParams.fuelType) {
-    query = query.eq('car.fuel_type', searchParams.fuelType);
+    query = query.eq('cars.fuel_type', searchParams.fuelType);
   }
 
   if (searchParams.transmission) {
-    query = query.eq('car.transmission', searchParams.transmission);
+    query = query.eq('cars.transmission', searchParams.transmission);
   }
 
   if (searchParams.bodyType) {
-    query = query.eq('car.body_type', searchParams.bodyType);
+    query = query.eq('cars.body_type', searchParams.bodyType);
   }
 
   if (searchParams.priceMin) {
@@ -74,7 +74,14 @@ async function getLiveLots(searchParams: { [key: string]: string | string[] | un
     return [];
   }
 
-  return data || [];
+  // Transform the data to match the expected structure
+  const transformedData = (data || []).map(lot => ({
+    ...lot,
+    car: lot.cars,
+    images: lot.lot_images
+  }));
+
+  return transformedData;
 }
 
 function LoadingSkeleton() {

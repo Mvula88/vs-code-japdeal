@@ -15,8 +15,8 @@ async function getLots() {
       .from('lots')
       .select(`
         *,
-        car:cars(*),
-        images:lot_images(*)
+        cars!inner(*),
+        lot_images(*)
       `)
       .eq('state', 'live')
       .order('end_at', { ascending: true })
@@ -26,8 +26,8 @@ async function getLots() {
       .from('lots')
       .select(`
         *,
-        car:cars(*),
-        images:lot_images(*)
+        cars!inner(*),
+        lot_images(*)
       `)
       .eq('state', 'upcoming')
       .order('start_at', { ascending: true })
@@ -37,18 +37,28 @@ async function getLots() {
       .from('lots')
       .select(`
         *,
-        car:cars(*),
-        images:lot_images(*)
+        cars!inner(*),
+        lot_images(*)
       `)
       .eq('state', 'ended')
       .order('end_at', { ascending: false })
       .limit(6),
   ]);
 
+  // Transform the data to match the expected structure
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const transformData = (data: any[]) => 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (data || []).map((lot: any) => ({
+      ...lot,
+      car: lot.cars,
+      images: lot.lot_images
+    }));
+
   return {
-    liveLots: liveLotsResult.data || [],
-    upcomingLots: upcomingLotsResult.data || [],
-    endedLots: endedLotsResult.data || [],
+    liveLots: transformData(liveLotsResult.data || []),
+    upcomingLots: transformData(upcomingLotsResult.data || []),
+    endedLots: transformData(endedLotsResult.data || []),
   };
 }
 
@@ -98,50 +108,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Features Section - Compact */}
-      <section className="py-12 border-b">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Car className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Quality Vehicles</h3>
-                <p className="text-sm text-muted-foreground">
-                  Hand-picked cars with verified history and inspection reports
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Zap className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">24-Hour Advantage</h3>
-                <p className="text-sm text-muted-foreground">
-                  Place bids up to 24 hours before the overseas auction
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Shield className="h-6 w-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Secure & Transparent</h3>
-                <p className="text-sm text-muted-foreground">
-                  Real-time updates and full cost transparency
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Live Auctions Section */}
+      {/* Live Auctions Section - Moved up after hero */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
@@ -193,60 +160,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Upcoming Auctions Section */}
+      {/* Recently Ended Auctions Section - Moved up after live */}
       <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-3xl font-bold">Upcoming Auctions</h2>
-                <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
-                  <Calendar className="h-3 w-3 mr-1.5" />
-                  {upcomingLots.length} Scheduled
-                </Badge>
-              </div>
-              <p className="text-muted-foreground">
-                Preview vehicles that will be available for bidding soon
-              </p>
-            </div>
-            <Link href={ROUTES.AUCTIONS.UPCOMING}>
-              <Button variant="outline" className="group">
-                View All Upcoming
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-          
-          {upcomingLots.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingLots.map((lot, index) => (
-                <div 
-                  key={lot.id} 
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <LotCard lot={lot} showPrices={false} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Card className="border-dashed bg-background">
-              <CardContent className="py-12 text-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <p className="text-lg font-medium mb-2">No Upcoming Auctions</p>
-                <p className="text-sm text-muted-foreground">
-                  New auctions will be scheduled soon
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
-
-      {/* Ended Auctions Section */}
-      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
             <div>
@@ -282,7 +197,7 @@ export default async function HomePage() {
               ))}
             </div>
           ) : (
-            <Card className="border-dashed">
+            <Card className="border-dashed bg-background">
               <CardContent className="py-12 text-center">
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                   <Trophy className="h-8 w-8 text-muted-foreground" />
@@ -294,6 +209,101 @@ export default async function HomePage() {
               </CardContent>
             </Card>
           )}
+        </div>
+      </section>
+
+      {/* Upcoming Auctions Section */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-3xl font-bold">Upcoming Auctions</h2>
+                <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                  <Calendar className="h-3 w-3 mr-1.5" />
+                  {upcomingLots.length} Scheduled
+                </Badge>
+              </div>
+              <p className="text-muted-foreground">
+                Preview vehicles that will be available for bidding soon
+              </p>
+            </div>
+            <Link href={ROUTES.AUCTIONS.UPCOMING}>
+              <Button variant="outline" className="group">
+                View All Upcoming
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+          
+          {upcomingLots.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingLots.map((lot, index) => (
+                <div 
+                  key={lot.id} 
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <LotCard lot={lot} showPrices={false} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="py-12 text-center">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="text-lg font-medium mb-2">No Upcoming Auctions</p>
+                <p className="text-sm text-muted-foreground">
+                  New auctions will be scheduled soon
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </section>
+
+      {/* Features Section - Moved down after auctions */}
+      <section className="py-12 border-y bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Car className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Quality Vehicles</h3>
+                <p className="text-sm text-muted-foreground">
+                  Hand-picked cars with verified history and inspection reports
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Zap className="h-6 w-6 text-accent" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">24-Hour Advantage</h3>
+                <p className="text-sm text-muted-foreground">
+                  Place bids up to 24 hours before the overseas auction
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Shield className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Secure & Transparent</h3>
+                <p className="text-sm text-muted-foreground">
+                  Real-time updates and full cost transparency
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
