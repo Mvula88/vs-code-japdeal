@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 
 export type ProcessedImage = {
@@ -8,7 +9,7 @@ export type ProcessedImage = {
 };
 
 export class ServerStorageClient {
-  private supabase;
+  private supabase: SupabaseClient | null = null;
 
   constructor() {
     this.initializeClient();

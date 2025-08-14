@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Car, Shield, Clock, TrendingUp, Sparkles, ChevronRight, Zap, Trophy, Calendar } from 'lucide-react';
+import { ArrowRight, Car, Shield, Clock, TrendingUp, Sparkles, Zap, Trophy, Calendar } from 'lucide-react';
 import LotCard from '@/components/lot/lot-card';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ROUTES } from '@/lib/constants';
