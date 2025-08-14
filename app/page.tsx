@@ -6,6 +6,7 @@ import { ArrowRight, Car, Shield, Clock, TrendingUp, Sparkles, Zap, Trophy, Cale
 import LotCard from '@/components/lot/lot-card';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ROUTES } from '@/lib/constants';
+import { redirect } from 'next/navigation';
 
 async function getLots() {
   const supabase = await createServerSupabaseClient();
@@ -63,6 +64,14 @@ async function getLots() {
 }
 
 export default async function HomePage() {
+  // Check if user is signed in and redirect to dashboard
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    redirect(ROUTES.DASHBOARD);
+  }
+  
   const { liveLots, upcomingLots, endedLots } = await getLots();
 
   return (

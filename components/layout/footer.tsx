@@ -1,7 +1,62 @@
+'use client';
+
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Footer() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  // If user is authenticated, only show contact info
+  if (isAuthenticated) {
+    return (
+      <footer className="border-t bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h3 className="font-bold text-lg mb-4">JapDEAL</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Your trusted platform for Japanese car imports to Namibia
+            </p>
+            <div className="flex justify-center items-center gap-4 text-sm text-muted-foreground">
+              <Link href="/contact" className="hover:text-primary">
+                Contact Us
+              </Link>
+              <span>•</span>
+              <a href="mailto:support@japdeal.com" className="hover:text-primary">
+                support@japdeal.com
+              </a>
+              <span>•</span>
+              <a href="tel:+264123456789" className="hover:text-primary">
+                +264 12 345 6789
+              </a>
+            </div>
+            <div className="mt-6 text-sm text-muted-foreground">
+              <p>&copy; 2024 JapDEAL. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  // Show full footer for non-authenticated users
   return (
     <footer className="border-t bg-background">
       <div className="container mx-auto px-4 py-8">
