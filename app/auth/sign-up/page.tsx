@@ -39,7 +39,7 @@ export default function SignUpPage() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -50,7 +50,28 @@ export default function SignUpPage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Special handling for database error
+        if (error.message === 'Database error saving new user') {
+          // Try to create profile manually as fallback
+          if (data?.user) {
+            const { error: profileError } = await supabase.rpc('create_profile_for_user', {
+              user_id: data.user.id,
+              user_email: email,
+              user_display_name: displayName || email.split('@')[0],
+            });
+            
+            if (!profileError) {
+              setSuccess(true);
+              return;
+            }
+          }
+          
+          setError('Unable to create account. Please contact support or try again later.');
+          return;
+        }
+        throw error;
+      }
 
       setSuccess(true);
     } catch (error) {

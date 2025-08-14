@@ -11,7 +11,10 @@ import {
   Bell, 
   User,
   Trophy,
-  Clock
+  Clock,
+  Radio,
+  Calendar,
+  CheckCircle
 } from 'lucide-react';
 
 const navItems = [
@@ -19,6 +22,21 @@ const navItems = [
     title: 'Overview',
     href: '/dashboard',
     icon: User,
+  },
+  {
+    title: 'Live Auctions',
+    href: '/auctions/live',
+    icon: Radio,
+  },
+  {
+    title: 'Upcoming Auctions',
+    href: '/auctions/upcoming',
+    icon: Calendar,
+  },
+  {
+    title: 'Ended Auctions',
+    href: '/auctions/ended',
+    icon: CheckCircle,
   },
   {
     title: 'Active Bids',

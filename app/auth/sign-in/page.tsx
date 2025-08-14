@@ -33,7 +33,7 @@ export default function SignInPage() {
 
       if (error) throw error;
 
-      router.push(ROUTES.HOME);
+      router.push(ROUTES.DASHBOARD);
       router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred during sign in');
