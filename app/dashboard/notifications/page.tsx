@@ -83,7 +83,7 @@ export default async function NotificationsPage() {
             </div>
             <h3 className="font-semibold mb-2">No notifications yet</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              We'll notify you about important updates regarding your bids and watched auctions
+              We&apos;ll notify you about important updates regarding your bids and watched auctions
             </p>
           </CardContent>
         </Card>
