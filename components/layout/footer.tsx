@@ -39,8 +39,8 @@ export default function Footer() {
                 Contact Us
               </Link>
               <span>•</span>
-              <a href="mailto:japdeal@gmail.com" className="hover:text-primary">
-                japdeal@gmail.com
+              <a href="mailto:japdealnamibia@gmail.com" className="hover:text-primary">
+                japdealnamibia@gmail.com
               </a>
               <span>•</span>
               <a href="tel:+264813214813" className="hover:text-primary">
