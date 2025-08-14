@@ -39,16 +39,16 @@ export default function Footer() {
                 Contact Us
               </Link>
               <span>•</span>
-              <a href="mailto:support@japdeal.com" className="hover:text-primary">
-                support@japdeal.com
+              <a href="mailto:japdeal@gmail.com" className="hover:text-primary">
+                japdeal@gmail.com
               </a>
               <span>•</span>
-              <a href="tel:+264123456789" className="hover:text-primary">
-                +264 12 345 6789
+              <a href="tel:+264813214813" className="hover:text-primary">
+                +264 081 321 4813
               </a>
             </div>
             <div className="mt-6 text-sm text-muted-foreground">
-              <p>&copy; 2024 JapDEAL. All rights reserved.</p>
+              <p>&copy; 2025 JapDEAL. All rights reserved.</p>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 JapDEAL. All rights reserved.</p>
+          <p>&copy; 2025 JapDEAL. All rights reserved.</p>
         </div>
       </div>
     </footer>
