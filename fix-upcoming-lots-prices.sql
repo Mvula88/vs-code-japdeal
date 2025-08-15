@@ -36,7 +36,6 @@ SELECT
         WHEN state = 'upcoming' THEN NULL
         ELSE current_price 
     END as current_price,
-    reserve_met,
     start_at,
     end_at,
     extension_count,
@@ -84,8 +83,7 @@ CREATE TRIGGER lot_state_change_trigger
 -- Step 8: Create a function for admins to set prices for upcoming lots
 CREATE OR REPLACE FUNCTION set_lot_prices(
     p_lot_id UUID,
-    p_starting_price DECIMAL,
-    p_reserve_price DECIMAL DEFAULT NULL
+    p_starting_price DECIMAL
 )
 RETURNS void AS $$
 BEGIN
@@ -102,8 +100,7 @@ BEGIN
     UPDATE lots 
     SET 
         starting_price = p_starting_price,
-        current_price = p_starting_price,
-        reserve_price = p_reserve_price
+        current_price = p_starting_price
     WHERE id = p_lot_id 
     AND state = 'upcoming';
     
