@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Then create the lot
-    const lotInsertData: any = {
+    const lotInsertData = {
       lot_number: body.lot_number,
       car_id: carData.id,
       starting_price: body.starting_price ? parseFloat(body.starting_price) : null,
@@ -122,10 +122,11 @@ export async function POST(request: NextRequest) {
 
     console.log('Successfully created lot:', lotData);
     return NextResponse.json({ ...lotData, car: carData });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating lot:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create lot';
     return NextResponse.json(
-      { error: error.message || 'Failed to create lot' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
