@@ -57,7 +57,7 @@ export default async function AdminLotsPage() {
       .order('created_at', { ascending: false });
 
     // Transform data to match expected structure
-    lots = (data || []).map(lot => ({
+    lots = (data || []).map((lot: any) => ({
       id: lot.id,
       title: lot.lot_number,
       status: lot.state || 'draft',
