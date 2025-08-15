@@ -4,10 +4,33 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
+interface TransformedLot {
+  id: string;
+  title: string;
+  status: string;
+  start_date: string;
+  end_date: string;
+  starting_price: number;
+  current_price: number;
+  created_at: string;
+  cars: {
+    make: string;
+    model: string;
+    year: number;
+    mileage: number;
+    engine_size: number;
+  } | null;
+  bids: { count: number }[];
+  profiles: {
+    full_name: string;
+    email: string;
+  };
+}
+
 export default async function AdminLotsPage() {
   const supabase = await createServerSupabaseClient();
   
-  let lots = [];
+  let lots: TransformedLot[] = [];
   
   try {
     const { data } = await supabase

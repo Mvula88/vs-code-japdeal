@@ -264,18 +264,7 @@ export default function NewLotPage() {
     try {
       // Prepare lot data
       const selectedMakeData = carMakes.find(m => m.id === selectedMake);
-      const lotData = {
-        lotNumber,
-        make: selectedMakeData?.name,
-        ...formData,
-        auctionType,
-        soldPrice: auctionType === 'ended' ? soldPrice : null,
-        startDate,
-        endDate,
-        images: selectedImages,
-        featuredImageIndex,
-      };
-
+      
       // Create the lot via API
       const response = await fetch('/api/admin/lots', {
         method: 'POST',
@@ -312,15 +301,13 @@ export default function NewLotPage() {
         throw new Error(error.error || 'Failed to create lot');
       }
 
-      const result = await response.json();
-      
       toast({
         title: 'Lot created successfully',
         description: `Lot ${lotNumber} has been added to the platform.`,
       });
       
       router.push('/admin/lots');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to create lot. Please try again.',
