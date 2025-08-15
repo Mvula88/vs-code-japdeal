@@ -170,15 +170,37 @@ async function seedDatabase() {
     await supabase.from('lots').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     await supabase.from('cars').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
+    // Get any existing user for seeding, or use your actual user ID
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+
+    let adminUserId = profiles?.[0]?.id;
+
+    if (!adminUserId) {
+      console.log('❌ No users found in the database. Please create a user account first.');
+      console.log('   Run the app and sign up, then try seeding again.');
+      process.exit(1);
+    }
+
+    console.log('Using user ID for seeding:', adminUserId);
+
     console.log('Creating sample cars and lots...');
     
     for (let i = 0; i < sampleCars.length; i++) {
       const car = sampleCars[i];
       
-      // Insert car
+      // Insert car (remove condition and features fields, add title and created_by fields)
+      const { condition, features, ...carWithoutExtraFields } = car;
+      const carWithRequiredFields = {
+        ...carWithoutExtraFields,
+        title: `${car.year} ${car.make} ${car.model}`,
+        created_by: adminUserId,
+      };
       const { data: carData, error: carError } = await supabase
         .from('cars')
-        .insert(car)
+        .insert(carWithRequiredFields)
         .select()
         .single();
 
@@ -211,20 +233,20 @@ async function seedDatabase() {
         end_at = new Date(now.getTime() - (i - 5) * 24 * 60 * 60 * 1000); // Ended days ago
       }
 
-      // Insert lot
+      // Insert lot - the schema requires both starting_price and current_price
+      const startingPrice = 150000 + Math.floor(Math.random() * 200000);
       const { data: lotData, error: lotError } = await supabase
         .from('lots')
         .insert({
           lot_number: `LOT${String(i + 1).padStart(4, '0')}`,
           car_id: carData.id,
-          starting_price: 150000 + Math.floor(Math.random() * 200000),
-          current_price: state === 'live' ? 200000 + Math.floor(Math.random() * 150000) : 150000 + Math.floor(Math.random() * 200000),
-          bid_increment: 5000,
-          reserve_price: 250000 + Math.floor(Math.random() * 150000),
+          starting_price: startingPrice,
+          current_price: state === 'live' ? startingPrice + Math.floor(Math.random() * 50000) : startingPrice,
           start_at: start_at.toISOString(),
           end_at: end_at.toISOString(),
           state,
           bid_count: state === 'live' ? Math.floor(Math.random() * 20) : state === 'ended' ? Math.floor(Math.random() * 30) : 0,
+          created_by: adminUserId,
         })
         .select()
         .single();
