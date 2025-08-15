@@ -307,10 +307,10 @@ export default function NewLotPage() {
       });
       
       router.push('/admin/lots');
-    } catch {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to create lot. Please try again.',
+        description: error.message || 'Failed to create lot. Please try again.',
         variant: 'destructive',
       });
     } finally {

@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('Creating lot with data:', body);
+    
     const supabase = await createServerSupabaseClient();
 
     // First create the car
@@ -53,47 +55,77 @@ export async function POST(request: NextRequest) {
       .insert({
         make: body.make,
         model: body.model,
-        year: body.year,
-        mileage: body.mileage,
+        year: parseInt(body.year),
+        mileage: body.mileage ? parseInt(body.mileage) : null,
         engine: body.engine,
         transmission: body.transmission,
         fuel_type: body.fuel_type,
         body_type: body.body_type,
         color: body.color,
         vin: body.vin,
-        condition: body.condition,
+        condition: body.condition || 'good',
         features: body.features || [],
       })
       .select()
       .single();
 
-    if (carError) throw carError;
+    if (carError) {
+      console.error('Error creating car:', carError);
+      return NextResponse.json(
+        { error: `Failed to create car: ${carError.message}` },
+        { status: 400 }
+      );
+    }
 
     // Then create the lot
+    const lotInsertData: any = {
+      lot_number: body.lot_number,
+      car_id: carData.id,
+      starting_price: body.starting_price ? parseFloat(body.starting_price) : null,
+      current_price: body.current_price || body.starting_price ? parseFloat(body.current_price || body.starting_price) : null,
+      bid_increment: body.bid_increment ? parseFloat(body.bid_increment) : 1000,
+      reserve_price: body.reserve_price ? parseFloat(body.reserve_price) : null,
+      start_at: body.start_at || null,
+      end_at: body.end_at || null,
+      state: body.state || 'upcoming',
+      created_by: user.id,
+      sold_price: body.sold_price ? parseFloat(body.sold_price) : null,
+      description: body.description || null,
+      bid_count: 0,
+    };
+
+    // Remove null values for fields that shouldn't be null
+    if (!lotInsertData.starting_price && body.state !== 'ended') {
+      lotInsertData.starting_price = 0;
+    }
+    if (!lotInsertData.current_price && body.state !== 'ended') {
+      lotInsertData.current_price = lotInsertData.starting_price || 0;
+    }
+
+    console.log('Inserting lot data:', lotInsertData);
+
     const { data: lotData, error: lotError } = await supabase
       .from('lots')
-      .insert({
-        lot_number: body.lot_number,
-        car_id: carData.id,
-        starting_price: body.starting_price,
-        current_price: body.starting_price,
-        bid_increment: body.bid_increment,
-        reserve_price: body.reserve_price,
-        start_at: body.start_at,
-        end_at: body.end_at,
-        state: body.state || 'upcoming',
-        created_by: user.id,
-      })
+      .insert(lotInsertData)
       .select()
       .single();
 
-    if (lotError) throw lotError;
+    if (lotError) {
+      console.error('Error creating lot:', lotError);
+      // If lot creation fails, delete the car we just created
+      await supabase.from('cars').delete().eq('id', carData.id);
+      return NextResponse.json(
+        { error: `Failed to create lot: ${lotError.message}` },
+        { status: 400 }
+      );
+    }
 
+    console.log('Successfully created lot:', lotData);
     return NextResponse.json({ ...lotData, car: carData });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating lot:', error);
     return NextResponse.json(
-      { error: 'Failed to create lot' },
+      { error: error.message || 'Failed to create lot' },
       { status: 500 }
     );
   }
