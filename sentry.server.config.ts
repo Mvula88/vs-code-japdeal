@@ -13,12 +13,8 @@ if (SENTRY_DSN) {
     // Release tracking
     release: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA,
     
-    // Server-specific options
-    autoSessionTracking: true,
-    
     integrations: [
       // Automatically instrument Node.js libraries and frameworks
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
     ],
     
     // Filtering
