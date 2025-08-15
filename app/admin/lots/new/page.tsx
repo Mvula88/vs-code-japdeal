@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon, Upload, Save, ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
+import { CalendarIcon, Upload, Save, ArrowLeft, Plus, Trash2, Loader2, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CarMake {
@@ -36,6 +36,7 @@ export default function NewLotPage() {
   const [soldPrice, setSoldPrice] = useState('');
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [featuredImageIndex, setFeaturedImageIndex] = useState<number>(0);
   const [formData, setFormData] = useState({
     vin: '',
     model: '',
@@ -216,9 +217,24 @@ export default function NewLotPage() {
     setSelectedImages(newImages);
     setImagePreviewUrls(newUrls);
 
+    // Update featured image index if needed
+    if (index === featuredImageIndex) {
+      setFeaturedImageIndex(0);
+    } else if (index < featuredImageIndex) {
+      setFeaturedImageIndex(featuredImageIndex - 1);
+    }
+
     toast({
       title: 'Image removed',
       description: `Image removed. ${newImages.length} image(s) remaining.`,
+    });
+  };
+
+  const handleSetFeatured = (index: number) => {
+    setFeaturedImageIndex(index);
+    toast({
+      title: 'Featured image set',
+      description: `Image ${index + 1} is now the featured image.`,
     });
   };
 
@@ -256,6 +272,8 @@ export default function NewLotPage() {
         soldPrice: auctionType === 'ended' ? soldPrice : null,
         startDate,
         endDate,
+        images: selectedImages,
+        featuredImageIndex,
       };
 
       // Simulate API call - replace with actual API call
@@ -667,28 +685,65 @@ export default function NewLotPage() {
 
               {/* Image Previews */}
               {imagePreviewUrls.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {imagePreviewUrls.map((url, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleImageRemove(index)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                      <span className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-1 rounded">
-                        {index + 1}
-                      </span>
-                    </div>
-                  ))}
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Click the star icon to set an image as the featured/thumbnail image
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {imagePreviewUrls.map((url, index) => (
+                      <div key={index} className="relative group">
+                        {/* Featured Badge */}
+                        {index === featuredImageIndex && (
+                          <div className="absolute top-2 left-2 z-10 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-current" />
+                            Featured
+                          </div>
+                        )}
+                        
+                        <img
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className={cn(
+                            "w-full h-32 object-cover rounded-lg border-2 transition-all",
+                            index === featuredImageIndex 
+                              ? "border-primary ring-2 ring-primary/20" 
+                              : "border-border"
+                          )}
+                        />
+                        
+                        {/* Action Buttons */}
+                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            type="button"
+                            variant={index === featuredImageIndex ? "default" : "secondary"}
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => handleSetFeatured(index)}
+                            title="Set as featured image"
+                          >
+                            <Star className={cn(
+                              "h-3 w-3",
+                              index === featuredImageIndex && "fill-current"
+                            )} />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => handleImageRemove(index)}
+                            title="Remove image"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        
+                        <span className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-1 rounded">
+                          {index + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
