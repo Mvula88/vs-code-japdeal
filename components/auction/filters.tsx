@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,18 +16,37 @@ export default function AuctionFilters() {
   const [isOpen, setIsOpen] = useState(false);
 
   const [filters, setFilters] = useState({
-    search: searchParams.get('search') || '',
-    make: searchParams.get('make') || '',
-    model: searchParams.get('model') || '',
-    yearMin: searchParams.get('yearMin') || '',
-    yearMax: searchParams.get('yearMax') || '',
-    mileageMax: searchParams.get('mileageMax') || '',
-    fuelType: searchParams.get('fuelType') || '',
-    transmission: searchParams.get('transmission') || '',
-    bodyType: searchParams.get('bodyType') || '',
-    priceMin: searchParams.get('priceMin') || '',
-    priceMax: searchParams.get('priceMax') || '',
+    search: '',
+    make: '',
+    model: '',
+    yearMin: '',
+    yearMax: '',
+    mileageMax: '',
+    fuelType: '',
+    transmission: '',
+    bodyType: '',
+    priceMin: '',
+    priceMax: '',
   });
+
+  // Initialize filters from searchParams after component mounts
+  useEffect(() => {
+    if (searchParams) {
+      setFilters({
+        search: searchParams.get('search') || '',
+        make: searchParams.get('make') || '',
+        model: searchParams.get('model') || '',
+        yearMin: searchParams.get('yearMin') || '',
+        yearMax: searchParams.get('yearMax') || '',
+        mileageMax: searchParams.get('mileageMax') || '',
+        fuelType: searchParams.get('fuelType') || '',
+        transmission: searchParams.get('transmission') || '',
+        bodyType: searchParams.get('bodyType') || '',
+        priceMin: searchParams.get('priceMin') || '',
+        priceMax: searchParams.get('priceMax') || '',
+      });
+    }
+  }, [searchParams]);
 
   const applyFilters = () => {
     const params = new URLSearchParams();
