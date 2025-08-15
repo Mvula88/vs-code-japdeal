@@ -102,7 +102,12 @@ export async function POST(request: NextRequest) {
 
       case 'get-stats':
         // Get database statistics
-        const stats = {
+        const stats: {
+          totalSize: string;
+          tables: Array<{ name: string; records: number; size: string }>;
+          connections: number;
+          uptime: string;
+        } = {
           totalSize: '1.2GB',
           tables: [],
           connections: 12,
