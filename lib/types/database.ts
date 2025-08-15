@@ -42,11 +42,14 @@ export interface Lot {
   starting_price: number | null;
   current_price: number | null;
   sold_price: number | null;
+  bid_increment: number | null;
+  reserve_price: number | null;
   start_at: string | null;
   end_at: string | null;
-  auto_extend_minutes: number;
+  description: string | null;
+  auto_extend_minutes?: number;
   bid_count: number;
-  created_by: string;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
   car?: Car;
@@ -56,11 +59,13 @@ export interface Lot {
 
 export interface LotImage {
   id: string;
-  car_id: string;
+  lot_id?: string;
+  car_id?: string;
   file_path: string;
-  is_thumbnail: boolean;
-  display_order: number;
+  is_thumbnail?: boolean;
+  display_order?: number;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Bid {
