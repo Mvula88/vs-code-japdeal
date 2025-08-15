@@ -90,7 +90,7 @@ export default async function AdminLotsPage() {
         make: lot.cars.make,
         model: lot.cars.model,
         year: lot.cars.year,
-        mileage: lot.cars.mileage,
+        mileage: lot.cars.mileage || 0,
         engine_size: parseFloat(lot.cars.engine?.split('L')[0] || '0')
       } : null,
       bids: [{ count: 0 }], // Default to 0 bids for now
