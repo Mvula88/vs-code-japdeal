@@ -2,14 +2,10 @@ import LotCard from '@/components/lot/lot-card';
 import AuctionFilters from '@/components/auction/filters';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
-
-async function getUpcomingLots(searchParams: { [key: string]: string | string[] | undefined }) {
+async function getUpcomingLots() {
   const supabase = await createServerSupabaseClient();
   
-  let query = supabase
+  const query = supabase
     .from('lots')
     .select(`
       *,
@@ -39,9 +35,8 @@ async function getUpcomingLots(searchParams: { [key: string]: string | string[] 
   return transformedData;
 }
 
-export default async function UpcomingAuctionsPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const lots = await getUpcomingLots(params);
+export default async function UpcomingAuctionsPage() {
+  const lots = await getUpcomingLots();
 
   return (
     <div className="container mx-auto px-4 py-8">
