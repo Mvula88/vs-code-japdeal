@@ -37,7 +37,7 @@ export function AdminStats({ stats }: StatsProps) {
     },
     {
       title: 'Total Revenue',
-      value: `¥${stats.totalRevenue.toLocaleString()}`,
+      value: `N$${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       trend: '+23.1%',
       trendUp: true,

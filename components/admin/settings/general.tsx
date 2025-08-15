@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,32 @@ export function GeneralSettings() {
     timezone: 'Africa/Windhoek',
     dateFormat: 'DD/MM/YYYY',
   });
+
+  useEffect(() => {
+    // Load saved settings on mount
+    const loadSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setSettings({
+              siteName: data.site_name || data.siteName || 'JapDeal Auctions',
+              siteDescription: data.site_description || data.siteDescription || 'Premium Japanese vehicle auction platform',
+              contactEmail: data.contact_email || data.contactEmail || 'japdealnamibia@gmail.com',
+              supportPhone: data.support_phone || data.supportPhone || '+264 081 321 4813',
+              currency: data.currency || 'N$',
+              timezone: data.timezone || 'Africa/Windhoek',
+              dateFormat: data.date_format || data.dateFormat || 'DD/MM/YYYY',
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    };
+    loadSettings();
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);

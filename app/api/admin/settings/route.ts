@@ -108,7 +108,13 @@ export async function POST(request: NextRequest) {
       result = await supabase
         .from('system_settings')
         .update({
-          ...settings,
+          site_name: settings.siteName,
+          site_description: settings.siteDescription,
+          contact_email: settings.contactEmail,
+          support_phone: settings.supportPhone,
+          currency: settings.currency,
+          timezone: settings.timezone,
+          date_format: settings.dateFormat,
           updated_at: new Date().toISOString(),
           updated_by: user.id,
         })
@@ -120,7 +126,13 @@ export async function POST(request: NextRequest) {
       result = await supabase
         .from('system_settings')
         .insert({
-          ...settings,
+          site_name: settings.siteName,
+          site_description: settings.siteDescription,
+          contact_email: settings.contactEmail,
+          support_phone: settings.supportPhone,
+          currency: settings.currency,
+          timezone: settings.timezone,
+          date_format: settings.dateFormat,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           created_by: user.id,

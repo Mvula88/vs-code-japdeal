@@ -43,7 +43,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
                     {activity.profiles?.full_name || 'Unknown User'}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Bid ¥{activity.amount.toLocaleString()} on {activity.lots?.title}
+                    Bid N${activity.amount.toLocaleString()} on {activity.lots?.title}
                   </p>
                 </div>
                 <div className="text-xs text-muted-foreground">

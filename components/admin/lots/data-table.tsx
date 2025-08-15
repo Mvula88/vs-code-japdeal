@@ -201,9 +201,9 @@ export function LotsDataTable({ lots }: LotsDataTableProps) {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <p className="font-medium">¥{lot.current_price?.toLocaleString()}</p>
+                      <p className="font-medium">N${lot.current_price?.toLocaleString()}</p>
                       <p className="text-muted-foreground">
-                        Start: ¥{lot.starting_price?.toLocaleString()}
+                        Start: N${lot.starting_price?.toLocaleString()}
                       </p>
                     </div>
                   </TableCell>
