@@ -86,13 +86,12 @@ export default async function LiveDebugPage({ searchParams }: PageProps) {
 
         <div className="grid lg:grid-cols-4 gap-8">
           <aside className="lg:col-span-1">
-            <div className="p-4 border rounded">
+            <div className="p-4 border rounded mb-4">
               <p className="text-sm text-gray-600">
-                AuctionFilters component disabled for debugging
+                Testing with AuctionFilters component enabled...
               </p>
             </div>
-            {/* Commenting out to test without it */}
-            {/* <AuctionFilters /> */}
+            <AuctionFilters />
           </aside>
 
           <div className="lg:col-span-3">
