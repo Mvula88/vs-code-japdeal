@@ -57,6 +57,7 @@ export default async function AdminLotsPage() {
       .order('created_at', { ascending: false });
 
     // Transform data to match expected structure
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     lots = ((data as any[]) || []).map((lot) => ({
       id: lot.id,
       title: lot.lot_number,
