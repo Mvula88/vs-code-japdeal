@@ -1,12 +1,51 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 export function AuctionSettings() {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState({
+    enableBuyNow: false,
+    reservePrice: false,
+    autoExtend: true,
+    minBidIncrement: 100,
+    maxBidAmount: 1000000,
+    extensionTime: 5,
+    defaultDuration: 7,
+    customDuration: 14,
+    buyerFee: 5,
+    sellerFee: 10,
+    listingFee: 50,
+  });
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast({
+        title: 'Settings saved',
+        description: 'Your auction settings have been updated successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save settings. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -24,7 +63,10 @@ export function AuctionSettings() {
                 Allow users to purchase items immediately at a fixed price
               </p>
             </div>
-            <Switch />
+            <Switch 
+              checked={settings.enableBuyNow}
+              onCheckedChange={(checked) => setSettings({ ...settings, enableBuyNow: checked })}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
@@ -33,7 +75,10 @@ export function AuctionSettings() {
                 Allow sellers to set minimum acceptable prices
               </p>
             </div>
-            <Switch />
+            <Switch 
+              checked={settings.reservePrice}
+              onCheckedChange={(checked) => setSettings({ ...settings, reservePrice: checked })}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
@@ -42,7 +87,10 @@ export function AuctionSettings() {
                 Extend auction time if bids are placed near the end
               </p>
             </div>
-            <Switch />
+            <Switch 
+              checked={settings.autoExtend}
+              onCheckedChange={(checked) => setSettings({ ...settings, autoExtend: checked })}
+            />
           </div>
         </CardContent>
       </Card>
@@ -57,19 +105,56 @@ export function AuctionSettings() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="min-bid">Minimum Bid Increment</Label>
-            <Input id="min-bid" type="number" placeholder="100" />
+            <Input 
+              id="min-bid" 
+              type="number" 
+              value={settings.minBidIncrement}
+              onChange={(e) => setSettings({ ...settings, minBidIncrement: parseInt(e.target.value) || 0 })}
+              placeholder="100" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="max-bid">Maximum Bid Amount</Label>
-            <Input id="max-bid" type="number" placeholder="1000000" />
+            <Input 
+              id="max-bid" 
+              type="number" 
+              value={settings.maxBidAmount}
+              onChange={(e) => setSettings({ ...settings, maxBidAmount: parseInt(e.target.value) || 0 })}
+              placeholder="1000000" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="extend-time">Extension Time (minutes)</Label>
-            <Input id="extend-time" type="number" placeholder="5" />
+            <Input 
+              id="extend-time" 
+              type="number" 
+              value={settings.extensionTime}
+              onChange={(e) => setSettings({ ...settings, extensionTime: parseInt(e.target.value) || 0 })}
+              placeholder="5" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="default-duration">Default Auction Duration (days)</Label>
-            <Input id="default-duration" type="number" placeholder="7" />
+            <Input 
+              id="default-duration" 
+              type="number" 
+              value={settings.defaultDuration}
+              onChange={(e) => setSettings({ ...settings, defaultDuration: parseInt(e.target.value) || 0 })}
+              placeholder="7" 
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="custom-duration">Custom Auction Duration for Live Auctions (days)</Label>
+            <Input 
+              id="custom-duration" 
+              type="number" 
+              value={settings.customDuration}
+              onChange={(e) => setSettings({ ...settings, customDuration: parseInt(e.target.value) || 0 })}
+              placeholder="14" 
+            />
+            <p className="text-sm text-muted-foreground">
+              Set the duration for live/current auctions when listing new vehicles
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -84,21 +169,44 @@ export function AuctionSettings() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="buyer-fee">Buyer Premium (%)</Label>
-            <Input id="buyer-fee" type="number" placeholder="5" step="0.1" />
+            <Input 
+              id="buyer-fee" 
+              type="number" 
+              value={settings.buyerFee}
+              onChange={(e) => setSettings({ ...settings, buyerFee: parseFloat(e.target.value) || 0 })}
+              placeholder="5" 
+              step="0.1" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="seller-fee">Seller Commission (%)</Label>
-            <Input id="seller-fee" type="number" placeholder="10" step="0.1" />
+            <Input 
+              id="seller-fee" 
+              type="number" 
+              value={settings.sellerFee}
+              onChange={(e) => setSettings({ ...settings, sellerFee: parseFloat(e.target.value) || 0 })}
+              placeholder="10" 
+              step="0.1" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="listing-fee">Listing Fee</Label>
-            <Input id="listing-fee" type="number" placeholder="50" />
+            <Input 
+              id="listing-fee" 
+              type="number" 
+              value={settings.listingFee}
+              onChange={(e) => setSettings({ ...settings, listingFee: parseInt(e.target.value) || 0 })}
+              placeholder="50" 
+            />
           </div>
         </CardContent>
       </Card>
 
       <div className="flex justify-end">
-        <Button>Save Changes</Button>
+        <Button onClick={handleSave} disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save Changes
+        </Button>
       </div>
     </div>
   );
