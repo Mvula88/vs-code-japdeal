@@ -4,26 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
-interface LotData {
-  id: string;
-  lot_number: string;
-  starting_price: number | null;
-  current_price: number | null;
-  sold_price: number | null;
-  start_at: string | null;
-  end_at: string | null;
-  state: string | null;
-  description: string | null;
-  created_at: string;
-  cars: {
-    make: string;
-    model: string;
-    year: number;
-    mileage: number | null;
-    engine: string | null;
-  } | null;
-}
-
 interface TransformedLot {
   id: string;
   title: string;
@@ -66,7 +46,7 @@ export default async function AdminLotsPage() {
         state,
         description,
         created_at,
-        cars (
+        car:cars!car_id (
           make,
           model,
           year,
@@ -77,7 +57,7 @@ export default async function AdminLotsPage() {
       .order('created_at', { ascending: false });
 
     // Transform data to match expected structure
-    lots = ((data as LotData[]) || []).map((lot) => ({
+    lots = ((data as any[]) || []).map((lot) => ({
       id: lot.id,
       title: lot.lot_number,
       status: lot.state || 'draft',
@@ -86,12 +66,12 @@ export default async function AdminLotsPage() {
       starting_price: lot.starting_price || 0,
       current_price: lot.current_price || lot.starting_price || 0,
       created_at: lot.created_at,
-      cars: lot.cars ? {
-        make: lot.cars.make,
-        model: lot.cars.model,
-        year: lot.cars.year,
-        mileage: lot.cars.mileage || 0,
-        engine_size: parseFloat(lot.cars.engine?.split('L')[0] || '0')
+      cars: lot.car ? {
+        make: lot.car.make,
+        model: lot.car.model,
+        year: lot.car.year,
+        mileage: lot.car.mileage || 0,
+        engine_size: parseFloat(lot.car.engine?.split('L')[0] || '0')
       } : null,
       bids: [{ count: 0 }], // Default to 0 bids for now
       profiles: {
