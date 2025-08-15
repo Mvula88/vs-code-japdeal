@@ -47,3 +47,6 @@ export async function createServerSupabaseAdminClient() {
     }
   );
 }
+
+// Alias for consistency with naming conventions
+export const createClient = createServerSupabaseClient;
