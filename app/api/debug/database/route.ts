@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();
     
-    const diagnostics: any = {
+    const diagnostics: Record<string, any> = {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -14,7 +14,7 @@ export async function GET() {
     };
 
     // Test basic connectivity
-    const { data: testConnection, error: connError } = await supabase
+    const { error: connError } = await supabase
       .from('lots')
       .select('count', { count: 'exact', head: true });
     
@@ -80,11 +80,11 @@ export async function GET() {
     }
 
     return NextResponse.json(diagnostics, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({
       error: 'Server error',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' && error instanceof Error ? error.stack : undefined
     }, { status: 500 });
   }
 }

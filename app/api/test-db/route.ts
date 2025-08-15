@@ -30,10 +30,10 @@ export async function GET() {
       count: data?.length || 0,
       data: data || []
     });
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json({ 
       success: false,
-      error: err.message 
+      error: err instanceof Error ? err.message : 'Unknown error'
     }, { status: 500 });
   }
 }
