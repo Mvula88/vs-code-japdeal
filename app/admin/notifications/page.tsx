@@ -14,6 +14,13 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function AdminNotificationsPage() {
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [recipientType, setRecipientType] = useState('all');
+  const [notificationForm, setNotificationForm] = useState({
+    subject: '',
+    message: '',
+    type: 'email',
+  });
   const [emailSettings, setEmailSettings] = useState({
     welcomeEmail: true,
     bidConfirmation: true,
@@ -22,18 +29,93 @@ export default function AdminNotificationsPage() {
     newsletter: false,
   });
 
-  const handleSendNotification = () => {
-    toast({
-      title: 'Notification sent',
-      description: 'Your notification has been sent to selected recipients.',
-    });
+  const handleSendNotification = async () => {
+    if (!notificationForm.subject || !notificationForm.message) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipientType,
+          subject: notificationForm.subject,
+          message: notificationForm.message,
+          type: notificationForm.type,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send notification');
+      }
+
+      toast({
+        title: 'Notification sent',
+        description: `Your notification has been sent to ${data.recipientCount} recipients.`,
+      });
+
+      // Reset form
+      setNotificationForm({
+        subject: '',
+        message: '',
+        type: 'email',
+      });
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to send notification.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveSettings = () => {
-    toast({
-      title: 'Settings saved',
-      description: 'Notification settings have been updated successfully.',
-    });
+  const handleSaveSettings = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notificationSettings: emailSettings,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save settings');
+      }
+
+      toast({
+        title: 'Settings saved',
+        description: 'Notification settings have been updated successfully.',
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to save settings.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,15 +147,27 @@ export default function AdminNotificationsPage() {
               <div className="space-y-2">
                 <Label>Recipients</Label>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant={recipientType === 'all' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setRecipientType('all')}
+                  >
                     <Users className="mr-2 h-4 w-4" />
                     All Users
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant={recipientType === 'bidders' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setRecipientType('bidders')}
+                  >
                     <User className="mr-2 h-4 w-4" />
                     Active Bidders
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant={recipientType === 'sellers' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setRecipientType('sellers')}
+                  >
                     <User className="mr-2 h-4 w-4" />
                     Sellers
                   </Button>
@@ -82,7 +176,12 @@ export default function AdminNotificationsPage() {
               
               <div className="space-y-2">
                 <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" placeholder="Notification subject" />
+                <Input 
+                  id="subject" 
+                  placeholder="Notification subject"
+                  value={notificationForm.subject}
+                  onChange={(e) => setNotificationForm({ ...notificationForm, subject: e.target.value })}
+                />
               </div>
 
               <div className="space-y-2">
@@ -91,30 +190,44 @@ export default function AdminNotificationsPage() {
                   id="message" 
                   placeholder="Enter your notification message here..."
                   rows={6}
+                  value={notificationForm.message}
+                  onChange={(e) => setNotificationForm({ ...notificationForm, message: e.target.value })}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Notification Type</Label>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant={notificationForm.type === 'email' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setNotificationForm({ ...notificationForm, type: 'email' })}
+                  >
                     <Mail className="mr-2 h-4 w-4" />
                     Email
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant={notificationForm.type === 'push' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setNotificationForm({ ...notificationForm, type: 'push' })}
+                  >
                     <Bell className="mr-2 h-4 w-4" />
                     Push
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant={notificationForm.type === 'sms' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setNotificationForm({ ...notificationForm, type: 'sms' })}
+                  >
                     <MessageSquare className="mr-2 h-4 w-4" />
                     SMS
                   </Button>
                 </div>
               </div>
 
-              <Button onClick={handleSendNotification}>
+              <Button onClick={handleSendNotification} disabled={loading}>
                 <Send className="mr-2 h-4 w-4" />
-                Send Notification
+                {loading ? 'Sending...' : 'Send Notification'}
               </Button>
             </CardContent>
           </Card>

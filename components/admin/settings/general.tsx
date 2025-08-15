@@ -25,16 +25,37 @@ export function GeneralSettings() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          siteName: settings.siteName,
+          siteDescription: settings.siteDescription,
+          contactEmail: settings.contactEmail,
+          supportPhone: settings.supportPhone,
+          currency: settings.currency,
+          timezone: settings.timezone,
+          dateFormat: settings.dateFormat,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save settings');
+      }
+
       toast({
         title: 'Settings saved',
         description: 'Your general settings have been updated successfully.',
       });
     } catch (error) {
+      console.error('Error saving settings:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save settings. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to save settings. Please try again.',
         variant: 'destructive',
       });
     } finally {

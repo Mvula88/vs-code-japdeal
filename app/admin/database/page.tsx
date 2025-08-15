@@ -13,32 +13,164 @@ export default function AdminDatabasePage() {
   const { toast } = useToast();
   const [backupProgress, setBackupProgress] = useState(0);
   const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const handleBackup = async () => {
     setIsBackingUp(true);
     setBackupProgress(0);
     
+    // Simulate progress
     const interval = setInterval(() => {
       setBackupProgress(prev => {
-        if (prev >= 100) {
+        if (prev >= 90) {
           clearInterval(interval);
-          setIsBackingUp(false);
-          toast({
-            title: 'Backup completed',
-            description: 'Database backup has been created successfully.',
-          });
-          return 100;
+          return 90;
         }
         return prev + 10;
       });
     }, 200);
+
+    try {
+      const response = await fetch('/api/admin/database', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'backup' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Backup failed');
+      }
+
+      setBackupProgress(100);
+      toast({
+        title: 'Backup completed',
+        description: 'Database backup has been created successfully.',
+      });
+    } catch (error) {
+      console.error('Backup error:', error);
+      toast({
+        title: 'Backup failed',
+        description: error instanceof Error ? error.message : 'Failed to create backup.',
+        variant: 'destructive',
+      });
+    } finally {
+      setTimeout(() => {
+        setIsBackingUp(false);
+        setBackupProgress(0);
+      }, 1000);
+    }
   };
 
-  const handleOptimize = () => {
-    toast({
-      title: 'Optimization started',
-      description: 'Database optimization is in progress. This may take a few minutes.',
-    });
+  const handleRestore = async () => {
+    const confirmed = window.confirm('Are you sure you want to restore from backup? This will overwrite current data.');
+    if (!confirmed) return;
+
+    setIsRestoring(true);
+    try {
+      const response = await fetch('/api/admin/database', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'restore' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Restore failed');
+      }
+
+      toast({
+        title: 'Restore initiated',
+        description: 'Database restore is in progress. This may take a few minutes.',
+      });
+    } catch (error) {
+      console.error('Restore error:', error);
+      toast({
+        title: 'Restore failed',
+        description: error instanceof Error ? error.message : 'Failed to restore database.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRestoring(false);
+    }
+  };
+
+  const handleOptimize = async () => {
+    setIsOptimizing(true);
+    try {
+      const response = await fetch('/api/admin/database', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'optimize' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Optimization failed');
+      }
+
+      toast({
+        title: 'Optimization completed',
+        description: `Optimized ${data.details?.tablesOptimized || 0} tables, reclaimed ${data.details?.spaceReclaimed || '0MB'}.`,
+      });
+    } catch (error) {
+      console.error('Optimization error:', error);
+      toast({
+        title: 'Optimization failed',
+        description: error instanceof Error ? error.message : 'Failed to optimize database.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleCheckIntegrity = async () => {
+    setIsChecking(true);
+    try {
+      const response = await fetch('/api/admin/database', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'check-integrity' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Integrity check failed');
+      }
+
+      const hasIssues = data.overall !== 'healthy';
+      toast({
+        title: hasIssues ? 'Issues found' : 'Database healthy',
+        description: hasIssues 
+          ? 'Some tables have issues. Please review the results.'
+          : 'All database tables passed integrity checks.',
+        variant: hasIssues ? 'destructive' : 'default',
+      });
+    } catch (error) {
+      console.error('Integrity check error:', error);
+      toast({
+        title: 'Check failed',
+        description: error instanceof Error ? error.message : 'Failed to check database integrity.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   return (
@@ -167,9 +299,9 @@ export default function AdminDatabasePage() {
               <Download className="mr-2 h-4 w-4" />
               Create Backup
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleRestore} disabled={isRestoring}>
               <Upload className="mr-2 h-4 w-4" />
-              Restore from Backup
+              {isRestoring ? 'Restoring...' : 'Restore from Backup'}
             </Button>
           </div>
         </CardContent>
@@ -184,13 +316,13 @@ export default function AdminDatabasePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex space-x-2">
-            <Button onClick={handleOptimize} variant="outline">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Optimize Database
+            <Button onClick={handleOptimize} variant="outline" disabled={isOptimizing}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isOptimizing ? 'animate-spin' : ''}`} />
+              {isOptimizing ? 'Optimizing...' : 'Optimize Database'}
             </Button>
-            <Button variant="outline">
-              <AlertCircle className="mr-2 h-4 w-4" />
-              Check Integrity
+            <Button variant="outline" onClick={handleCheckIntegrity} disabled={isChecking}>
+              <AlertCircle className={`mr-2 h-4 w-4 ${isChecking ? 'animate-pulse' : ''}`} />
+              {isChecking ? 'Checking...' : 'Check Integrity'}
             </Button>
           </div>
         </CardContent>

@@ -29,16 +29,41 @@ export function AuctionSettings() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          enableBuyNow: settings.enableBuyNow,
+          reservePrice: settings.reservePrice,
+          autoExtend: settings.autoExtend,
+          minBidIncrement: settings.minBidIncrement,
+          maxBidAmount: settings.maxBidAmount,
+          extensionTime: settings.extensionTime,
+          defaultDuration: settings.defaultDuration,
+          customDuration: settings.customDuration,
+          buyerFee: settings.buyerFee,
+          sellerFee: settings.sellerFee,
+          listingFee: settings.listingFee,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save settings');
+      }
+
       toast({
         title: 'Settings saved',
         description: 'Your auction settings have been updated successfully.',
       });
     } catch (error) {
+      console.error('Error saving settings:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save settings. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to save settings. Please try again.',
         variant: 'destructive',
       });
     } finally {

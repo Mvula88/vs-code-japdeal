@@ -21,11 +21,41 @@ export default function AdminSecurityPage() {
     auditLogging: true,
   });
 
-  const handleSave = () => {
-    toast({
-      title: 'Security settings updated',
-      description: 'Your security configuration has been saved successfully.',
-    });
+  const handleSave = async () => {
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          twoFactorAuth: settings.twoFactorAuth,
+          sessionTimeout: settings.sessionTimeout,
+          maxLoginAttempts: settings.maxLoginAttempts,
+          requireStrongPassword: settings.requireStrongPassword,
+          ipWhitelisting: settings.ipWhitelisting,
+          auditLogging: settings.auditLogging,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save settings');
+      }
+
+      toast({
+        title: 'Security settings updated',
+        description: 'Your security configuration has been saved successfully.',
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to save settings.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleRotateKeys = () => {
