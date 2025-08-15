@@ -62,7 +62,7 @@ export default function LotCard({ lot, showPrices = true }: LotCardProps) {
           {thumbnailImage ? (
             <Image
               src={thumbnailImage.file_path}
-              alt={`${lot.car?.year} ${lot.car?.make} ${lot.car?.model}`}
+              alt={lot.car ? `${lot.car.year} ${lot.car.make} ${lot.car.model}` : 'Lot image'}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -160,7 +160,7 @@ export default function LotCard({ lot, showPrices = true }: LotCardProps) {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Current bid</span>
                   <span className="text-lg font-bold gradient-text">
-                    {formatCurrency(lot.current_price || lot.start_price)}
+                    {formatCurrency(lot.current_price || lot.starting_price)}
                   </span>
                 </div>
                 {timeLeft > 0 && (
