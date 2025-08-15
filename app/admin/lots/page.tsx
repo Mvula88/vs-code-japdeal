@@ -4,6 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
+interface LotData {
+  id: string;
+  lot_number: string;
+  starting_price: number | null;
+  current_price: number | null;
+  sold_price: number | null;
+  start_at: string | null;
+  end_at: string | null;
+  state: string | null;
+  description: string | null;
+  created_at: string;
+  cars: {
+    make: string;
+    model: string;
+    year: number;
+    mileage: number | null;
+    engine: string | null;
+  } | null;
+}
+
 interface TransformedLot {
   id: string;
   title: string;
@@ -57,7 +77,7 @@ export default async function AdminLotsPage() {
       .order('created_at', { ascending: false });
 
     // Transform data to match expected structure
-    lots = (data || []).map((lot: any) => ({
+    lots = ((data as LotData[]) || []).map((lot) => ({
       id: lot.id,
       title: lot.lot_number,
       status: lot.state || 'draft',
