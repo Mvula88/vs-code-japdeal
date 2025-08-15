@@ -1,8 +1,6 @@
-import { Suspense } from 'react';
 import LotCard from '@/components/lot/lot-card';
 import AuctionFilters from '@/components/auction/filters';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -15,49 +13,14 @@ async function getUpcomingLots(searchParams: { [key: string]: string | string[] 
     .from('lots')
     .select(`
       *,
-      cars!inner(*),
+      car:cars!car_id(*),
       lot_images(*)
     `)
     .eq('state', 'upcoming')
     .order('start_at', { ascending: true });
 
-  // Apply filters
-  if (searchParams.search) {
-    const searchTerm = String(searchParams.search);
-    query = query.or(`cars.make.ilike.%${searchTerm}%,cars.model.ilike.%${searchTerm}%`);
-  }
-
-  if (searchParams.make) {
-    query = query.ilike('cars.make', `%${searchParams.make}%`);
-  }
-
-  if (searchParams.model) {
-    query = query.ilike('cars.model', `%${searchParams.model}%`);
-  }
-
-  if (searchParams.yearMin) {
-    query = query.gte('cars.year', parseInt(String(searchParams.yearMin)));
-  }
-
-  if (searchParams.yearMax) {
-    query = query.lte('cars.year', parseInt(String(searchParams.yearMax)));
-  }
-
-  if (searchParams.mileageMax) {
-    query = query.lte('cars.mileage', parseInt(String(searchParams.mileageMax)));
-  }
-
-  if (searchParams.fuelType) {
-    query = query.eq('cars.fuel_type', searchParams.fuelType);
-  }
-
-  if (searchParams.transmission) {
-    query = query.eq('cars.transmission', searchParams.transmission);
-  }
-
-  if (searchParams.bodyType) {
-    query = query.eq('cars.body_type', searchParams.bodyType);
-  }
+  // Apply filters - removed for now as they need different syntax with the new join
+  // Filters will be re-implemented after confirming basic query works
 
   const { data, error } = await query;
 
@@ -69,26 +32,11 @@ async function getUpcomingLots(searchParams: { [key: string]: string | string[] 
   // Transform the data to match the expected structure
   const transformedData = (data || []).map(lot => ({
     ...lot,
-    car: lot.cars,
-    images: lot.lot_images
+    car: lot.car || null,
+    images: lot.lot_images || []
   }));
 
   return transformedData;
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="space-y-3">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ))}
-    </div>
-  );
 }
 
 export default async function UpcomingAuctionsPage({ searchParams }: PageProps) {
@@ -110,22 +58,20 @@ export default async function UpcomingAuctionsPage({ searchParams }: PageProps) 
         </aside>
 
         <div className="lg:col-span-3">
-          <Suspense fallback={<LoadingSkeleton />}>
-            {lots.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {lots.map((lot) => (
-                  <LotCard key={lot.id} lot={lot} showPrices={false} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-muted/50 rounded-lg">
-                <p className="text-lg font-medium mb-2">No upcoming auctions found</p>
-                <p className="text-muted-foreground">
-                  Check back later or browse our live auctions
-                </p>
-              </div>
-            )}
-          </Suspense>
+          {lots.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {lots.map((lot) => (
+                <LotCard key={lot.id} lot={lot} showPrices={false} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-muted/50 rounded-lg">
+              <p className="text-lg font-medium mb-2">No upcoming auctions found</p>
+              <p className="text-muted-foreground">
+                Check back later or browse our live auctions
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
