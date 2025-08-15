@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon, Upload, Save, ArrowLeft } from 'lucide-react';
+import { CalendarIcon, Upload, Save, ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+interface CarMake {
+  id: string;
+  name: string;
+}
 
 export default function NewLotPage() {
   const router = useRouter();
@@ -21,18 +27,189 @@ export default function NewLotPage() {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [loading, setLoading] = useState(false);
+  const [lotNumber, setLotNumber] = useState('');
+  const [carMakes, setCarMakes] = useState<CarMake[]>([]);
+  const [selectedMake, setSelectedMake] = useState('');
+  const [newMakeName, setNewMakeName] = useState('');
+  const [isAddingMake, setIsAddingMake] = useState(false);
+  const [auctionType, setAuctionType] = useState('live');
+  const [soldPrice, setSoldPrice] = useState('');
+  const [formData, setFormData] = useState({
+    vin: '',
+    model: '',
+    year: '',
+    mileage: '',
+    engine: '',
+    transmission: 'automatic',
+    fuelType: 'petrol',
+    bodyType: 'suv',
+    description: '',
+    startingPrice: '',
+    customDays: '14',
+  });
+
+  // Fetch lot number on component mount
+  useEffect(() => {
+    fetchNextLotNumber();
+    fetchCarMakes();
+  }, []);
+
+  const fetchNextLotNumber = async () => {
+    try {
+      const response = await fetch('/api/admin/lots/next-number');
+      const data = await response.json();
+      setLotNumber(data.nextLotNumber || 'LOT0001');
+    } catch (error) {
+      console.error('Error fetching lot number:', error);
+      // Generate a fallback lot number
+      setLotNumber(`LOT${Date.now().toString().slice(-4)}`);
+    }
+  };
+
+  const fetchCarMakes = async () => {
+    try {
+      const response = await fetch('/api/admin/car-makes');
+      const data = await response.json();
+      setCarMakes(data.carMakes || []);
+    } catch (error) {
+      console.error('Error fetching car makes:', error);
+      // Set default makes if fetch fails
+      setCarMakes([
+        { id: '1', name: 'Toyota' },
+        { id: '2', name: 'Nissan' },
+        { id: '3', name: 'Honda' },
+        { id: '4', name: 'Mazda' },
+        { id: '5', name: 'Mitsubishi' },
+      ]);
+    }
+  };
+
+  const handleAddMake = async () => {
+    if (!newMakeName.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a car make name.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsAddingMake(true);
+    try {
+      const response = await fetch('/api/admin/car-makes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newMakeName }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: `${newMakeName} has been added to car makes.`,
+        });
+        
+        // Add to local state
+        const newMake = data.carMake || { id: Date.now().toString(), name: newMakeName };
+        setCarMakes([...carMakes, newMake]);
+        setSelectedMake(newMake.id);
+        setNewMakeName('');
+      } else {
+        throw new Error(data.error || 'Failed to add car make');
+      }
+    } catch (error) {
+      console.error('Error adding car make:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add car make. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingMake(false);
+    }
+  };
+
+  const handleDeleteMake = async (makeId: string) => {
+    const make = carMakes.find(m => m.id === makeId);
+    if (!make) return;
+
+    const confirmed = window.confirm(`Are you sure you want to delete ${make.name}?`);
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/admin/car-makes?id=${makeId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: `${make.name} has been deleted.`,
+        });
+        
+        // Remove from local state
+        setCarMakes(carMakes.filter(m => m.id !== makeId));
+        if (selectedMake === makeId) {
+          setSelectedMake('');
+        }
+      } else {
+        throw new Error('Failed to delete car make');
+      }
+    } catch (error) {
+      console.error('Error deleting car make:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete car make. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedMake) {
+      toast({
+        title: 'Error',
+        description: 'Please select a car make.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (auctionType === 'ended' && !soldPrice) {
+      toast({
+        title: 'Error',
+        description: 'Please enter the sold price for ended auction.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     
     try {
-      // Simulate API call
+      // Prepare lot data
+      const selectedMakeData = carMakes.find(m => m.id === selectedMake);
+      const lotData = {
+        lotNumber,
+        make: selectedMakeData?.name,
+        ...formData,
+        auctionType,
+        soldPrice: auctionType === 'ended' ? soldPrice : null,
+        startDate,
+        endDate,
+      };
+
+      // Simulate API call - replace with actual API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       toast({
         title: 'Lot created successfully',
-        description: 'The new auction lot has been added.',
+        description: `Lot ${lotNumber} has been added to the platform.`,
       });
       
       router.push('/admin/lots');
@@ -76,45 +253,150 @@ export default function NewLotPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="lot-number">Lot Number</Label>
-                <Input id="lot-number" placeholder="LOT0001" required />
+                <Label htmlFor="lot-number">Lot Number (Auto-generated)</Label>
+                <Input 
+                  id="lot-number" 
+                  value={lotNumber} 
+                  disabled 
+                  className="bg-muted"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vin">VIN</Label>
-                <Input id="vin" placeholder="Vehicle Identification Number" required />
+                <Input 
+                  id="vin" 
+                  placeholder="Vehicle Identification Number" 
+                  value={formData.vin}
+                  onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
+                  required 
+                />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="make">Make</Label>
-                <Input id="make" placeholder="Toyota" required />
+                <div className="flex space-x-2">
+                  <Select value={selectedMake} onValueChange={setSelectedMake}>
+                    <SelectTrigger id="make" className="flex-1">
+                      <SelectValue placeholder="Select car make" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {carMakes.map((make) => (
+                        <div key={make.id} className="flex items-center justify-between">
+                          <SelectItem value={make.id} className="flex-1">
+                            {make.name}
+                          </SelectItem>
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button type="button" size="icon" variant="outline">
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Manage Car Makes</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="flex space-x-2">
+                          <Input
+                            placeholder="Enter new car make"
+                            value={newMakeName}
+                            onChange={(e) => setNewMakeName(e.target.value)}
+                          />
+                          <Button 
+                            type="button" 
+                            onClick={handleAddMake}
+                            disabled={isAddingMake}
+                          >
+                            {isAddingMake ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              'Add'
+                            )}
+                          </Button>
+                        </div>
+                        
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {carMakes.map((make) => (
+                            <div key={make.id} className="flex items-center justify-between p-2 border rounded">
+                              <span>{make.name}</span>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleDeleteMake(make.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="model">Model</Label>
-                <Input id="model" placeholder="Land Cruiser" required />
+                <Input 
+                  id="model" 
+                  placeholder="Land Cruiser" 
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="year">Year</Label>
-                <Input id="year" type="number" placeholder="2020" required />
+                <Input 
+                  id="year" 
+                  type="number" 
+                  placeholder="2020" 
+                  value={formData.year}
+                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                  required 
+                />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="mileage">Mileage</Label>
-                <Input id="mileage" type="number" placeholder="45000" required />
+                <Input 
+                  id="mileage" 
+                  type="number" 
+                  placeholder="45000" 
+                  value={formData.mileage}
+                  onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="engine">Engine</Label>
-                <Input id="engine" placeholder="4.5L V8 Diesel" required />
+                <Input 
+                  id="engine" 
+                  placeholder="4.5L V8 Diesel" 
+                  value={formData.engine}
+                  onChange={(e) => setFormData({ ...formData, engine: e.target.value })}
+                  required 
+                />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="transmission">Transmission</Label>
-                <Select>
+                <Select 
+                  value={formData.transmission} 
+                  onValueChange={(value) => setFormData({ ...formData, transmission: value })}
+                >
                   <SelectTrigger id="transmission">
                     <SelectValue placeholder="Select transmission" />
                   </SelectTrigger>
@@ -127,7 +409,10 @@ export default function NewLotPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fuel-type">Fuel Type</Label>
-                <Select>
+                <Select 
+                  value={formData.fuelType} 
+                  onValueChange={(value) => setFormData({ ...formData, fuelType: value })}
+                >
                   <SelectTrigger id="fuel-type">
                     <SelectValue placeholder="Select fuel type" />
                   </SelectTrigger>
@@ -141,7 +426,10 @@ export default function NewLotPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="body-type">Body Type</Label>
-                <Select>
+                <Select 
+                  value={formData.bodyType} 
+                  onValueChange={(value) => setFormData({ ...formData, bodyType: value })}
+                >
                   <SelectTrigger id="body-type">
                     <SelectValue placeholder="Select body type" />
                   </SelectTrigger>
@@ -162,6 +450,8 @@ export default function NewLotPage() {
                 id="description" 
                 placeholder="Enter vehicle description and features..."
                 rows={4}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
           </CardContent>
@@ -177,21 +467,44 @@ export default function NewLotPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="starting-price">Starting Price (N$)</Label>
-                <Input id="starting-price" type="number" placeholder="150000" required />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="auction-type">Auction Type</Label>
-                <Select>
+                <Select value={auctionType} onValueChange={setAuctionType}>
                   <SelectTrigger id="auction-type">
                     <SelectValue placeholder="Select auction type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="live">Live Auction</SelectItem>
                     <SelectItem value="upcoming">Upcoming Auction</SelectItem>
+                    <SelectItem value="ended">Ended Auction</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              
+              {auctionType === 'ended' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="sold-price">Sold Price (N$)</Label>
+                  <Input 
+                    id="sold-price" 
+                    type="number" 
+                    placeholder="250000" 
+                    value={soldPrice}
+                    onChange={(e) => setSoldPrice(e.target.value)}
+                    required={auctionType === 'ended'}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="starting-price">Starting Price (N$)</Label>
+                  <Input 
+                    id="starting-price" 
+                    type="number" 
+                    placeholder="150000" 
+                    value={formData.startingPrice}
+                    onChange={(e) => setFormData({ ...formData, startingPrice: e.target.value })}
+                    required={auctionType !== 'ended'}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -247,18 +560,21 @@ export default function NewLotPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="custom-days">Custom Auction Duration (days)</Label>
-              <Input 
-                id="custom-days" 
-                type="number" 
-                placeholder="14" 
-                defaultValue="14"
-              />
-              <p className="text-sm text-muted-foreground">
-                Set custom duration for this live auction
-              </p>
-            </div>
+            {auctionType === 'live' && (
+              <div className="space-y-2">
+                <Label htmlFor="custom-days">Custom Auction Duration (days)</Label>
+                <Input 
+                  id="custom-days" 
+                  type="number" 
+                  placeholder="14" 
+                  value={formData.customDays}
+                  onChange={(e) => setFormData({ ...formData, customDays: e.target.value })}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Set custom duration for this live auction
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -275,7 +591,7 @@ export default function NewLotPage() {
               <p className="mt-2 text-sm text-muted-foreground">
                 Drag and drop images here, or click to browse
               </p>
-              <Button variant="outline" className="mt-4">
+              <Button variant="outline" className="mt-4" type="button">
                 Select Images
               </Button>
             </div>
@@ -291,8 +607,17 @@ export default function NewLotPage() {
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            <Save className="mr-2 h-4 w-4" />
-            {loading ? 'Creating...' : 'Create Lot'}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Create Lot
+              </>
+            )}
           </Button>
         </div>
       </form>
