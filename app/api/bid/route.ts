@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       .select('*')
       .order('upper_bound', { ascending: true });
 
-    const currentPrice = lot.current_price || lot.start_price || 0;
+    const currentPrice = lot.current_price || lot.starting_price || 0;
     const tier = incrementTiers?.find(t => currentPrice < t.upper_bound);
     const minIncrement = tier?.increment || 25000;
     const minBid = currentPrice + minIncrement;

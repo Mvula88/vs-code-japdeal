@@ -198,7 +198,7 @@ export default function BidPanel({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">Start Price</span>
-            <span className="font-medium">{formatCurrency(lot.start_price)}</span>
+            <span className="font-medium">{formatCurrency(lot.starting_price)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Current Price</span>

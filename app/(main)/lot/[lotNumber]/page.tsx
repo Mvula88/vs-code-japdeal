@@ -303,7 +303,7 @@ export default async function LotDetailPage({ params }: PageProps) {
           {/* Bid Panel */}
           <BidPanel
             lot={lot}
-            currentPrice={lot.current_price || lot.start_price || 0}
+            currentPrice={lot.current_price || lot.starting_price || 0}
             bidIncrements={bidIncrements}
             isAuthenticated={!!user}
             canBid={userCanBid}
@@ -312,7 +312,7 @@ export default async function LotDetailPage({ params }: PageProps) {
           {/* Cost Breakdown */}
           <CostBreakdown
             costSettings={costSettings}
-            vehiclePrice={lot.current_price || lot.start_price || 0}
+            vehiclePrice={lot.current_price || lot.starting_price || 0}
           />
         </div>
       </div>

@@ -39,7 +39,7 @@ export interface Lot {
   lot_number: string;
   car_id: string;
   state: LotState;
-  start_price: number | null;
+  starting_price: number | null;
   current_price: number | null;
   sold_price: number | null;
   start_at: string | null;
