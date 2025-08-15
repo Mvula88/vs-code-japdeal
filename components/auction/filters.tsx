@@ -51,7 +51,7 @@ export default function AuctionFilters() {
   const applyFilters = () => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
+      if (value && value !== 'all') {
         params.set(key, value);
       }
     });
@@ -146,12 +146,12 @@ export default function AuctionFilters() {
 
       <div className="space-y-2">
         <Label htmlFor="fuelType">Fuel Type</Label>
-        <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
+        <Select value={filters.fuelType || 'all'} onValueChange={(value) => setFilters({ ...filters, fuelType: value === 'all' ? '' : value })}>
           <SelectTrigger id="fuelType">
             <SelectValue placeholder="Select fuel type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             {FUEL_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -163,12 +163,12 @@ export default function AuctionFilters() {
 
       <div className="space-y-2">
         <Label htmlFor="transmission">Transmission</Label>
-        <Select value={filters.transmission} onValueChange={(value) => setFilters({ ...filters, transmission: value })}>
+        <Select value={filters.transmission || 'all'} onValueChange={(value) => setFilters({ ...filters, transmission: value === 'all' ? '' : value })}>
           <SelectTrigger id="transmission">
             <SelectValue placeholder="Select transmission" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             {TRANSMISSION_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -180,12 +180,12 @@ export default function AuctionFilters() {
 
       <div className="space-y-2">
         <Label htmlFor="bodyType">Body Type</Label>
-        <Select value={filters.bodyType} onValueChange={(value) => setFilters({ ...filters, bodyType: value })}>
+        <Select value={filters.bodyType || 'all'} onValueChange={(value) => setFilters({ ...filters, bodyType: value === 'all' ? '' : value })}>
           <SelectTrigger id="bodyType">
             <SelectValue placeholder="Select body type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             {BODY_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
