@@ -7,24 +7,60 @@ import Link from 'next/link';
 export default async function AdminLotsPage() {
   const supabase = await createServerSupabaseClient();
   
-  const { data: lots } = await supabase
-    .from('lots')
-    .select(`
-      *,
-      cars (
-        make,
-        model,
-        year,
-        mileage,
-        engine_size
-      ),
-      bids (count),
-      profiles (
-        full_name,
-        email
-      )
-    `)
-    .order('created_at', { ascending: false });
+  let lots = [];
+  
+  try {
+    const { data } = await supabase
+      .from('lots')
+      .select(`
+        id,
+        lot_number,
+        starting_price,
+        current_price,
+        sold_price,
+        start_at,
+        end_at,
+        state,
+        description,
+        created_at,
+        cars (
+          make,
+          model,
+          year,
+          mileage,
+          engine
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    // Transform data to match expected structure
+    lots = (data || []).map(lot => ({
+      id: lot.id,
+      title: lot.lot_number,
+      status: lot.state || 'draft',
+      start_date: lot.start_at || lot.created_at,
+      end_date: lot.end_at || lot.created_at,
+      starting_price: lot.starting_price || 0,
+      current_price: lot.current_price || lot.starting_price || 0,
+      created_at: lot.created_at,
+      cars: lot.cars ? {
+        make: lot.cars.make,
+        model: lot.cars.model,
+        year: lot.cars.year,
+        mileage: lot.cars.mileage,
+        engine_size: parseFloat(lot.cars.engine?.split('L')[0] || '0')
+      } : null,
+      bids: [{ count: 0 }], // Default to 0 bids for now
+      profiles: {
+        full_name: 'Admin',
+        email: 'admin@japdeal.com'
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching lots:', error);
+    // Database tables might not exist yet
+    lots = [];
+  }
 
   return (
     <div className="space-y-6">
@@ -43,7 +79,26 @@ export default async function AdminLotsPage() {
         </Button>
       </div>
 
-      <LotsDataTable lots={lots || []} />
+      {lots.length === 0 ? (
+        <div className="text-center py-12">
+          <h3 className="text-lg font-semibold mb-2">No lots found</h3>
+          <p className="text-muted-foreground mb-4">
+            Create your first lot to get started with the auction platform.
+          </p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Make sure to run the database migration script first:
+            <code className="ml-2 px-2 py-1 bg-muted rounded">create-lots-tables.sql</code>
+          </p>
+          <Button asChild>
+            <Link href="/admin/lots/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Create First Lot
+            </Link>
+          </Button>
+        </div>
+      ) : (
+        <LotsDataTable lots={lots} />
+      )}
     </div>
   );
 }

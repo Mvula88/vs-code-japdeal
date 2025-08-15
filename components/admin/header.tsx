@@ -14,6 +14,8 @@ import {
 import { Bell, Search, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 interface AdminHeaderProps {
   user: User;
@@ -21,6 +23,17 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ user }: AdminHeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push('/auth/sign-in');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-6">
@@ -71,7 +84,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

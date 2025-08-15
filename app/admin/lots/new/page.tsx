@@ -276,8 +276,43 @@ export default function NewLotPage() {
         featuredImageIndex,
       };
 
-      // Simulate API call - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create the lot via API
+      const response = await fetch('/api/admin/lots', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lot_number: lotNumber,
+          make: selectedMakeData?.name,
+          model: formData.model,
+          year: parseInt(formData.year),
+          mileage: parseInt(formData.mileage),
+          engine: formData.engine,
+          transmission: formData.transmission,
+          fuel_type: formData.fuelType,
+          body_type: formData.bodyType,
+          vin: formData.vin,
+          condition: 'excellent', // Default value
+          features: [],
+          starting_price: auctionType === 'ended' ? null : parseFloat(formData.startingPrice),
+          current_price: auctionType === 'ended' ? parseFloat(soldPrice) : parseFloat(formData.startingPrice),
+          bid_increment: 1000, // Default value
+          reserve_price: null,
+          start_at: startDate?.toISOString(),
+          end_at: endDate?.toISOString(),
+          state: auctionType === 'ended' ? 'ended' : auctionType,
+          sold_price: auctionType === 'ended' ? parseFloat(soldPrice) : null,
+          description: formData.description,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create lot');
+      }
+
+      const result = await response.json();
       
       toast({
         title: 'Lot created successfully',
