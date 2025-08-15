@@ -233,21 +233,35 @@ async function seedDatabase() {
         end_at = new Date(now.getTime() - (i - 5) * 24 * 60 * 60 * 1000); // Ended days ago
       }
 
-      // Insert lot - the schema requires both starting_price and current_price
+      // Insert lot - upcoming lots should have NULL prices to be hidden
       const startingPrice = 150000 + Math.floor(Math.random() * 200000);
-      const { data: lotData, error: lotError } = await supabase
+      const lotInsertData = {
+        lot_number: `LOT${String(i + 1).padStart(4, '0')}`,
+        car_id: carData.id,
+        start_at: start_at.toISOString(),
+        end_at: end_at.toISOString(),
+        state,
+        bid_count: state === 'live' ? Math.floor(Math.random() * 20) : state === 'ended' ? Math.floor(Math.random() * 30) : 0,
+        created_by: adminUserId,
+      } as any;
+
+      // Only add prices for live and ended lots
+      if (state !== 'upcoming') {
+        lotInsertData.starting_price = startingPrice;
+        lotInsertData.current_price = state === 'live' ? startingPrice + Math.floor(Math.random() * 50000) : startingPrice + Math.floor(Math.random() * 100000);
+      }
+      // For upcoming lots, we can either leave prices NULL (hidden) or set them equal
+      // Let's set them for some upcoming lots to show both scenarios
+      else if (i % 2 === 0) {
+        // Every other upcoming lot will have prices set (but equal)
+        lotInsertData.starting_price = startingPrice;
+        lotInsertData.current_price = startingPrice; // Must be equal for upcoming
+      }
+      // Otherwise leave NULL (prices hidden)
+
+      const { data: insertedLot, error: lotError } = await supabase
         .from('lots')
-        .insert({
-          lot_number: `LOT${String(i + 1).padStart(4, '0')}`,
-          car_id: carData.id,
-          starting_price: startingPrice,
-          current_price: state === 'live' ? startingPrice + Math.floor(Math.random() * 50000) : startingPrice,
-          start_at: start_at.toISOString(),
-          end_at: end_at.toISOString(),
-          state,
-          bid_count: state === 'live' ? Math.floor(Math.random() * 20) : state === 'ended' ? Math.floor(Math.random() * 30) : 0,
-          created_by: adminUserId,
-        })
+        .insert(lotInsertData)
         .select()
         .single();
 
@@ -255,6 +269,8 @@ async function seedDatabase() {
         console.error(`Error inserting lot ${i + 1}:`, lotError);
         continue;
       }
+      
+      const lotData = insertedLot;
 
       // Add sample images for each lot
       const imageUrls = [
