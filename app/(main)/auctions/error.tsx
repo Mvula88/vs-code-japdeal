@@ -27,7 +27,7 @@ export default function Error({
         
         <h2 className="text-2xl font-bold mb-2">Unable to load auctions</h2>
         <p className="text-muted-foreground mb-6">
-          We're having trouble loading the auction data. This might be a temporary issue.
+          We&apos;re having trouble loading the auction data. This might be a temporary issue.
         </p>
         
         <div className="space-y-3">
