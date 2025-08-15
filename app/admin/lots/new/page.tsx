@@ -34,6 +34,8 @@ export default function NewLotPage() {
   const [isAddingMake, setIsAddingMake] = useState(false);
   const [auctionType, setAuctionType] = useState('live');
   const [soldPrice, setSoldPrice] = useState('');
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     vin: '',
     model: '',
@@ -42,7 +44,7 @@ export default function NewLotPage() {
     engine: '',
     transmission: 'automatic',
     fuelType: 'petrol',
-    bodyType: 'suv',
+    bodyType: 'sedan',
     description: '',
     startingPrice: '',
     customDays: '14',
@@ -53,6 +55,13 @@ export default function NewLotPage() {
     fetchNextLotNumber();
     fetchCarMakes();
   }, []);
+
+  // Cleanup image preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviewUrls]);
 
   const fetchNextLotNumber = async () => {
     try {
@@ -166,6 +175,51 @@ export default function NewLotPage() {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newFiles = Array.from(files);
+    const totalFiles = selectedImages.length + newFiles.length;
+
+    if (totalFiles > 10) {
+      toast({
+        title: 'Error',
+        description: 'You can only upload up to 10 images.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Create preview URLs for new images
+    const newPreviewUrls = newFiles.map(file => URL.createObjectURL(file));
+
+    setSelectedImages([...selectedImages, ...newFiles]);
+    setImagePreviewUrls([...imagePreviewUrls, ...newPreviewUrls]);
+
+    toast({
+      title: 'Images added',
+      description: `${newFiles.length} image(s) selected. Total: ${totalFiles}`,
+    });
+  };
+
+  const handleImageRemove = (index: number) => {
+    // Revoke the URL to free memory
+    URL.revokeObjectURL(imagePreviewUrls[index]);
+
+    // Remove image from arrays
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    const newUrls = imagePreviewUrls.filter((_, i) => i !== index);
+
+    setSelectedImages(newImages);
+    setImagePreviewUrls(newUrls);
+
+    toast({
+      title: 'Image removed',
+      description: `Image removed. ${newImages.length} image(s) remaining.`,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -434,8 +488,8 @@ export default function NewLotPage() {
                     <SelectValue placeholder="Select body type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="suv">SUV</SelectItem>
                     <SelectItem value="sedan">Sedan</SelectItem>
+                    <SelectItem value="suv">SUV</SelectItem>
                     <SelectItem value="pickup">Pickup</SelectItem>
                     <SelectItem value="hatchback">Hatchback</SelectItem>
                     <SelectItem value="coupe">Coupe</SelectItem>
@@ -586,14 +640,57 @@ export default function NewLotPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="border-2 border-dashed rounded-lg p-8 text-center">
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="mt-2 text-sm text-muted-foreground">
-                Drag and drop images here, or click to browse
-              </p>
-              <Button variant="outline" className="mt-4" type="button">
-                Select Images
-              </Button>
+            <div className="space-y-4">
+              {/* Image Upload Area */}
+              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Drag and drop images here, or click to browse
+                </p>
+                <input
+                  type="file"
+                  id="image-upload"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
+                <label htmlFor="image-upload">
+                  <Button variant="outline" className="mt-4" type="button" asChild>
+                    <span>Select Images</span>
+                  </Button>
+                </label>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Maximum 10 images, up to 5MB each
+                </p>
+              </div>
+
+              {/* Image Previews */}
+              {imagePreviewUrls.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {imagePreviewUrls.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleImageRemove(index)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                      <span className="absolute bottom-2 left-2 text-xs bg-black/50 text-white px-1 rounded">
+                        {index + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
