@@ -3,36 +3,66 @@ import AuctionFilters from '@/components/auction/filters';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 async function getUpcomingLots() {
-  const supabase = await createServerSupabaseClient();
-  
-  const query = supabase
-    .from('lots')
-    .select(`
-      *,
-      car:cars!car_id(*),
-      lot_images(*)
-    `)
-    .eq('state', 'upcoming')
-    .order('start_at', { ascending: true });
+  try {
+    const supabase = await createServerSupabaseClient();
+    
+    // First, get the lots
+    const { data: lotsData, error: lotsError } = await supabase
+      .from('lots')
+      .select('*')
+      .eq('state', 'upcoming')
+      .order('start_at', { ascending: true });
 
-  // Apply filters - removed for now as they need different syntax with the new join
-  // Filters will be re-implemented after confirming basic query works
+    if (lotsError) {
+      console.error('Error fetching lots:', lotsError);
+      return [];
+    }
 
-  const { data, error } = await query;
+    if (!lotsData || lotsData.length === 0) {
+      return [];
+    }
 
-  if (error) {
-    console.error('Error fetching upcoming lots:', error);
+    // Get all car IDs
+    const carIds = lotsData.map(lot => lot.car_id).filter(Boolean);
+    
+    // Fetch cars separately
+    const { data: carsData, error: carsError } = await supabase
+      .from('cars')
+      .select('*')
+      .in('id', carIds);
+
+    if (carsError) {
+      console.error('Error fetching cars:', carsError);
+    }
+
+    // Fetch lot images
+    const lotIds = lotsData.map(lot => lot.id);
+    const { data: imagesData, error: imagesError } = await supabase
+      .from('lot_images')
+      .select('*')
+      .in('lot_id', lotIds);
+
+    if (imagesError) {
+      console.error('Error fetching lot images:', imagesError);
+    }
+
+    // Combine the data
+    const transformedData = lotsData.map(lot => {
+      const car = carsData?.find(c => c.id === lot.car_id) || null;
+      const images = imagesData?.filter(img => img.lot_id === lot.id) || [];
+      
+      return {
+        ...lot,
+        car,
+        images
+      };
+    });
+
+    return transformedData;
+  } catch (error) {
+    console.error('Error in getUpcomingLots:', error);
     return [];
   }
-
-  // Transform the data to match the expected structure
-  const transformedData = (data || []).map(lot => ({
-    ...lot,
-    car: lot.car || null,
-    images: lot.lot_images || []
-  }));
-
-  return transformedData;
 }
 
 export default async function UpcomingAuctionsPage() {
