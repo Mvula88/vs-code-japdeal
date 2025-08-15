@@ -19,7 +19,7 @@ interface TransformedLot {
     year: number;
     mileage: number;
     engine_size: number;
-  } | null;
+  };
   bids: { count: number }[];
   profiles: {
     full_name: string;
@@ -73,7 +73,13 @@ export default async function AdminLotsPage() {
         year: lot.car.year,
         mileage: lot.car.mileage || 0,
         engine_size: parseFloat(lot.car.engine?.split('L')[0] || '0')
-      } : null,
+      } : {
+        make: 'Unknown',
+        model: 'Unknown',
+        year: 0,
+        mileage: 0,
+        engine_size: 0
+      },
       bids: [{ count: 0 }], // Default to 0 bids for now
       profiles: {
         full_name: 'Admin',
