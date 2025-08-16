@@ -85,28 +85,24 @@ export default async function UpcomingAuctionsPage({ searchParams }: PageProps) 
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-4 gap-8">
-        <aside className="lg:col-span-1">
-          <AuctionFilters />
-        </aside>
-
-        <div className="lg:col-span-3">
-          {lots.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {lots.map((lot) => (
-                <LotCard key={lot.id} lot={lot} showPrices={false} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-muted/50 rounded-lg">
-              <p className="text-lg font-medium mb-2">No upcoming auctions found</p>
-              <p className="text-muted-foreground">
-                Check back later or browse our live auctions
-              </p>
-            </div>
-          )}
-        </div>
+      <div className="mb-8">
+        <AuctionFilters />
       </div>
+
+      {lots.length > 0 ? (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {lots.map((lot) => (
+            <LotCard key={lot.id} lot={lot} showPrices={false} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-muted/50 rounded-lg">
+          <p className="text-lg font-medium mb-2">No upcoming auctions found</p>
+          <p className="text-muted-foreground">
+            Check back later or browse our live auctions
+          </p>
+        </div>
+      )}
     </div>
   );
 }
