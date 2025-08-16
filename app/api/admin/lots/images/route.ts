@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUser, getProfile } from '@/lib/utils/auth';
 
 export async function POST(request: NextRequest) {
@@ -36,7 +35,7 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       
       // Upload to Supabase Storage
-      const { data: storageData, error: storageError } = await adminSupabase.storage
+      const { error: storageError } = await adminSupabase.storage
         .from('car-images')
         .upload(fileName, buffer, {
           contentType: image.type,

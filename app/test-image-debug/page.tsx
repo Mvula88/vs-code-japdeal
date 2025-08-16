@@ -3,8 +3,26 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
+interface ImageData {
+  success: boolean;
+  data: Array<{
+    lot_number: string;
+    images: Array<{
+      id: string;
+      file_path: string;
+      is_thumbnail: boolean;
+      display_order: number;
+    }>;
+  }>;
+  debug: {
+    total_lots: number;
+    total_images: number;
+    sample_image_url: string;
+  };
+}
+
 export default function TestImageDebugPage() {
-  const [imageData, setImageData] = useState<any>(null);
+  const [imageData, setImageData] = useState<ImageData | null>(null);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
@@ -90,10 +108,10 @@ export default function TestImageDebugPage() {
           
           {imageData.data && (
             <div className="grid grid-cols-3 gap-4 mt-4">
-              {imageData.data.map((lot: any) => (
+              {imageData.data.map((lot) => (
                 <div key={lot.lot_number} className="border p-4 rounded">
                   <p className="font-bold mb-2">{lot.lot_number}</p>
-                  {lot.images.map((img: any, idx: number) => (
+                  {lot.images.map((img, idx: number) => (
                     <div key={img.id} className="mb-2">
                       <p className="text-xs mb-1">Image {idx + 1} {img.is_thumbnail ? '(Thumbnail)' : ''}</p>
                       <div className="relative h-32 bg-gray-100">

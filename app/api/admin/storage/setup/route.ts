@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getUser, getProfile } from '@/lib/utils/auth';
 
 export async function POST() {
@@ -30,7 +29,7 @@ export async function POST() {
     
     // Create car-images bucket if it doesn't exist
     if (!carImagesBucketExists) {
-      const { data, error: createError } = await adminSupabase.storage.createBucket('car-images', {
+      const { error: createError } = await adminSupabase.storage.createBucket('car-images', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
         fileSizeLimit: 5242880 // 5MB
@@ -45,7 +44,7 @@ export async function POST() {
     
     // Create car-thumbnails bucket if it doesn't exist
     if (!carThumbnailsBucketExists) {
-      const { data, error: createError } = await adminSupabase.storage.createBucket('car-thumbnails', {
+      const { error: createError } = await adminSupabase.storage.createBucket('car-thumbnails', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
         fileSizeLimit: 2097152 // 2MB for thumbnails
