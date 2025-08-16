@@ -1,9 +1,6 @@
-interface LotWithCar {
-  id: string;
-  lot_number: string;
-  starting_price: number | null;
-  current_price: number | null;
-  sold_price: number | null;
+import { Lot } from '@/lib/types/database';
+
+type LotWithCar = Lot & {
   car?: {
     make?: string;
     model?: string;
@@ -12,9 +9,9 @@ interface LotWithCar {
     fuel_type?: string | null;
     transmission?: string | null;
     body_type?: string | null;
+    [key: string]: unknown;
   } | null;
-  [key: string]: unknown;
-}
+};
 
 export function applyAuctionFilters(
   lots: LotWithCar[],
