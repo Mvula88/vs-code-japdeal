@@ -264,43 +264,43 @@ export default async function HomePage() {
       </section>
 
       {/* Features Section - Moved down after auctions */}
-      <section className="py-12 border-y bg-muted/30">
+      <section className="py-20 border-y bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Car className="h-6 w-6 text-primary" />
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Why Choose JapDEAL?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              We make importing your dream car from Japan simple, secure, and transparent
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Car className="h-8 w-8 text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold mb-1">Quality Vehicles</h3>
-                <p className="text-sm text-muted-foreground">
-                  Hand-picked cars with verified history and inspection reports
-                </p>
-              </div>
+              <h3 className="text-lg font-semibold mb-2">Quality Vehicles</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Hand-picked cars with verified history and comprehensive inspection reports
+              </p>
             </div>
             
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Zap className="h-6 w-6 text-accent" />
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Zap className="h-8 w-8 text-accent" />
               </div>
-              <div>
-                <h3 className="font-semibold mb-1">24-Hour Advantage</h3>
-                <p className="text-sm text-muted-foreground">
-                  Place bids up to 24 hours before the overseas auction
-                </p>
-              </div>
+              <h3 className="text-lg font-semibold mb-2">24-Hour Advantage</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Place bids up to 24 hours before the overseas auction starts
+              </p>
             </div>
             
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Shield className="h-6 w-6 text-green-600" />
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Shield className="h-8 w-8 text-green-600" />
               </div>
-              <div>
-                <h3 className="font-semibold mb-1">Secure & Transparent</h3>
-                <p className="text-sm text-muted-foreground">
-                  Real-time updates and full cost transparency
-                </p>
-              </div>
+              <h3 className="text-lg font-semibold mb-2">Secure & Transparent</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Real-time updates and full cost transparency throughout the process
+              </p>
             </div>
           </div>
         </div>
