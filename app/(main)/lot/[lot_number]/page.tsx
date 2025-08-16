@@ -28,18 +28,30 @@ async function getLotDetails(lotNumber: string) {
     .select(`
       *,
       car:cars(*),
-      images:lot_images(*),
-      bids(
-        *,
-        bidder:profiles(display_name)
-      )
+      images:lot_images(*)
     `)
     .eq('lot_number', lotNumber)
     .single();
 
-  if (error || !lot) {
+  if (error) {
+    console.error('Error fetching lot details:', error);
     return null;
   }
+  
+  if (!lot) {
+    console.error('No lot found with number:', lotNumber);
+    return null;
+  }
+
+  // Get bids for this lot
+  const { data: bids } = await supabase
+    .from('bids')
+    .select(`
+      *,
+      profiles(display_name)
+    `)
+    .eq('lot_id', lot.id)
+    .order('amount', { ascending: false });
 
   // Get bid increment tiers
   const { data: bidIncrements } = await supabase
@@ -54,10 +66,8 @@ async function getLotDetails(lotNumber: string) {
     .eq('is_active', true)
     .single();
 
-  // Sort bids by amount descending
-  if (lot.bids) {
-    lot.bids.sort((a: { amount: number }, b: { amount: number }) => b.amount - a.amount);
-  }
+  // Attach bids to lot
+  lot.bids = bids || [];
 
   return {
     lot,
