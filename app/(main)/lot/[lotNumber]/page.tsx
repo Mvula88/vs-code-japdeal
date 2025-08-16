@@ -69,7 +69,8 @@ async function getLotDetails(lotNumber: string) {
 async function getRelatedLots(make: string, currentLotId: string) {
   const supabase = await createServerSupabaseClient();
   
-  const { data } = await supabase
+  // First get all live lots with cars
+  const { data: lots } = await supabase
     .from('lots')
     .select(`
       *,
@@ -78,10 +79,16 @@ async function getRelatedLots(make: string, currentLotId: string) {
     `)
     .eq('state', 'live')
     .neq('id', currentLotId)
-    .ilike('car.make', make)
-    .limit(3);
+    .limit(10);
 
-  return data || [];
+  if (!lots) return [];
+
+  // Filter by make on the client side
+  const relatedLots = lots.filter(lot => 
+    lot.car?.make?.toLowerCase() === make.toLowerCase()
+  ).slice(0, 3);
+
+  return relatedLots;
 }
 
 export default async function LotDetailPage({ params }: PageProps) {

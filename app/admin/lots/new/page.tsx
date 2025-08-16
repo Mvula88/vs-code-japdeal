@@ -301,6 +301,32 @@ export default function NewLotPage() {
         throw new Error(error.error || 'Failed to create lot');
       }
 
+      const lotData = await response.json();
+
+      // Upload images if any
+      if (selectedImages.length > 0) {
+        const imageFormData = new FormData();
+        imageFormData.append('lotId', lotData.id);
+        
+        selectedImages.forEach((image) => {
+          imageFormData.append('images', image);
+        });
+
+        const imageResponse = await fetch('/api/admin/lots/images', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!imageResponse.ok) {
+          console.error('Failed to upload some images');
+          toast({
+            title: 'Warning',
+            description: 'Lot created but some images failed to upload.',
+            variant: 'destructive',
+          });
+        }
+      }
+
       toast({
         title: 'Lot created successfully',
         description: `Lot ${lotNumber} has been added to the platform.`,
