@@ -22,7 +22,7 @@ export async function GET() {
     }
 
     // Get all lot numbers to find the highest number
-    const { data: lots, error: lotsError } = await supabase
+    const { data: lots } = await supabase
       .from('lots')
       .select('lot_number')
       .like('lot_number', 'LOT%')

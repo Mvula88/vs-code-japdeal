@@ -38,6 +38,7 @@ import { toast } from 'sonner';
 interface Lot {
   id: string;
   title: string;
+  lot_number: string;
   status: string;
   start_date: string;
   end_date: string;
