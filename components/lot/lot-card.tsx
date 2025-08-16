@@ -15,7 +15,20 @@ import QuickViewModal from './quick-view-modal';
 
 interface LotCardProps {
   lot: Lot & {
-    car?: { make: string; model: string; year: number; mileage: number; fuel_type?: string; transmission?: string };
+    car?: { 
+      make: string; 
+      model: string; 
+      year: number; 
+      mileage: number; 
+      fuel_type?: string | null; 
+      transmission?: string | null;
+      engine?: string | null;
+      body_type?: string | null;
+      color?: string | null;
+      vin?: string | null;
+      condition?: string | null;
+      features?: string[] | null;
+    };
     images?: { id: string; file_path: string; is_thumbnail?: boolean }[];
   };
   showPrices?: boolean;

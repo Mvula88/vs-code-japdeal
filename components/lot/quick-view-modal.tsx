@@ -14,7 +14,6 @@ import {
   Gauge, 
   Car,
   Wrench,
-  Palette,
   FileText,
   TrendingUp,
   DollarSign,
@@ -34,14 +33,14 @@ interface QuickViewModalProps {
       model: string; 
       year: number; 
       mileage: number; 
-      fuel_type?: string; 
-      transmission?: string;
-      engine?: string;
-      body_type?: string;
-      color?: string;
-      vin?: string;
-      condition?: string;
-      features?: string[];
+      fuel_type?: string | null; 
+      transmission?: string | null;
+      engine?: string | null;
+      body_type?: string | null;
+      color?: string | null;
+      vin?: string | null;
+      condition?: string | null;
+      features?: string[] | null;
     };
     images?: { id: string; file_path: string; is_thumbnail?: boolean }[];
   };
