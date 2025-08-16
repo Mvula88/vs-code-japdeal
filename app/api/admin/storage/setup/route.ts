@@ -23,31 +23,52 @@ export async function POST() {
       return NextResponse.json({ error: 'Failed to list buckets' }, { status: 500 });
     }
 
-    const bucketExists = buckets?.some(bucket => bucket.name === 'lot-images');
-
-    if (!bucketExists) {
-      // Create the bucket
-      const { data, error: createError } = await adminSupabase.storage.createBucket('lot-images', {
+    const carImagesBucketExists = buckets?.some(bucket => bucket.name === 'car-images');
+    const carThumbnailsBucketExists = buckets?.some(bucket => bucket.name === 'car-thumbnails');
+    
+    const bucketsCreated = [];
+    
+    // Create car-images bucket if it doesn't exist
+    if (!carImagesBucketExists) {
+      const { data, error: createError } = await adminSupabase.storage.createBucket('car-images', {
         public: true,
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
         fileSizeLimit: 5242880 // 5MB
       });
 
       if (createError) {
-        console.error('Error creating bucket:', createError);
-        return NextResponse.json({ error: 'Failed to create bucket' }, { status: 500 });
+        console.error('Error creating car-images bucket:', createError);
+      } else {
+        bucketsCreated.push('car-images');
       }
+    }
+    
+    // Create car-thumbnails bucket if it doesn't exist
+    if (!carThumbnailsBucketExists) {
+      const { data, error: createError } = await adminSupabase.storage.createBucket('car-thumbnails', {
+        public: true,
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+        fileSizeLimit: 2097152 // 2MB for thumbnails
+      });
 
+      if (createError) {
+        console.error('Error creating car-thumbnails bucket:', createError);
+      } else {
+        bucketsCreated.push('car-thumbnails');
+      }
+    }
+
+    if (bucketsCreated.length > 0) {
       return NextResponse.json({ 
         success: true, 
-        message: 'Storage bucket created successfully',
-        bucket: data 
+        message: `Storage buckets created successfully: ${bucketsCreated.join(', ')}`,
+        bucketsCreated 
       });
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Storage bucket already exists' 
+      message: 'All required storage buckets already exist' 
     });
   } catch (error) {
     console.error('Error setting up storage:', error);

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       
       // Upload to Supabase Storage
       const { data: storageData, error: storageError } = await adminSupabase.storage
-        .from('lot-images')
+        .from('car-images')
         .upload(fileName, buffer, {
           contentType: image.type,
           upsert: false
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
       // Get public URL
       const { data: { publicUrl } } = adminSupabase.storage
-        .from('lot-images')
+        .from('car-images')
         .getPublicUrl(fileName);
 
       // Save image record to database
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         .insert({
           lot_id: lotId,
           file_path: publicUrl,
-          is_primary: i === 0, // First image is primary
+          is_thumbnail: i === 0, // First image is thumbnail
           display_order: i + 1,
           created_at: new Date().toISOString()
         })
