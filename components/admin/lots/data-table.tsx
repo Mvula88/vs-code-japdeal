@@ -232,7 +232,7 @@ export function LotsDataTable({ lots }: LotsDataTableProps) {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                          <Link href={`/lots/${lot.id}`}>
+                          <Link href={`/lot/${lot.lot_number}`}>
                             <Eye className="mr-2 h-4 w-4" />
                             View Lot
                           </Link>
