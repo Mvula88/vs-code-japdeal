@@ -17,7 +17,7 @@ import { Calendar, Fuel, Gauge, Settings, MapPin, Car } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 
 interface PageProps {
-  params: Promise<{ lotNumber: string }>;
+  params: Promise<{ lot_number: string }>;
 }
 
 async function getLotDetails(lotNumber: string) {
@@ -92,8 +92,8 @@ async function getRelatedLots(make: string, currentLotId: string) {
 }
 
 export default async function LotDetailPage({ params }: PageProps) {
-  const { lotNumber } = await params;
-  const lotData = await getLotDetails(lotNumber);
+  const { lot_number } = await params;
+  const lotData = await getLotDetails(lot_number);
   
   if (!lotData) {
     notFound();
