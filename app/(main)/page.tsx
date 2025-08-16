@@ -85,10 +85,6 @@ export default async function HomePage() {
         
         <div className="container relative mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="mb-4 px-4 py-1.5 text-sm font-medium badge-glow">
-              <Sparkles className="mr-2 h-3.5 w-3.5" />
-              Trusted Japanese Car Imports to Namibia
-            </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance">
               Pre-Bid on Premium
@@ -120,19 +116,17 @@ export default async function HomePage() {
       {/* Live Auctions Section - Moved up after hero */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-3xl font-bold">Live Auctions</h2>
-                <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse" />
-                  {liveLots.length} Active
-                </Badge>
-              </div>
-              <p className="text-muted-foreground">
-                Active auctions ending soon - place your pre-bid now
-              </p>
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold">Live Auctions</h2>
+              <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse" />
+                {liveLots.length} Active
+              </Badge>
             </div>
+            <p className="text-muted-foreground mb-6">
+              Active auctions ending soon - place your pre-bid now
+            </p>
             <Link href={ROUTES.AUCTIONS.LIVE}>
               <Button variant="outline" className="group">
                 View All Live
@@ -172,19 +166,17 @@ export default async function HomePage() {
       {/* Recently Ended Auctions Section - Moved up after live */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-3xl font-bold">Recently Ended</h2>
-                <Badge className="bg-gray-500/10 text-gray-600 border-gray-500/20">
-                  <Trophy className="h-3 w-3 mr-1.5" />
-                  {endedLots.length} Completed
-                </Badge>
-              </div>
-              <p className="text-muted-foreground">
-                See the final prices of recently completed auctions
-              </p>
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold">Recently Ended</h2>
+              <Badge className="bg-gray-500/10 text-gray-600 border-gray-500/20">
+                <Trophy className="h-3 w-3 mr-1.5" />
+                {endedLots.length} Completed
+              </Badge>
             </div>
+            <p className="text-muted-foreground mb-6">
+              See the final prices of recently completed auctions
+            </p>
             <Link href={ROUTES.AUCTIONS.ENDED}>
               <Button variant="outline" className="group">
                 View All Results
@@ -224,19 +216,17 @@ export default async function HomePage() {
       {/* Upcoming Auctions Section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-3xl font-bold">Upcoming Auctions</h2>
-                <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
-                  <Calendar className="h-3 w-3 mr-1.5" />
-                  {upcomingLots.length} Scheduled
-                </Badge>
-              </div>
-              <p className="text-muted-foreground">
-                Preview vehicles that will be available for bidding soon
-              </p>
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold">Upcoming Auctions</h2>
+              <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                <Calendar className="h-3 w-3 mr-1.5" />
+                {upcomingLots.length} Scheduled
+              </Badge>
             </div>
+            <p className="text-muted-foreground mb-6">
+              Preview vehicles that will be available for bidding soon
+            </p>
             <Link href={ROUTES.AUCTIONS.UPCOMING}>
               <Button variant="outline" className="group">
                 View All Upcoming

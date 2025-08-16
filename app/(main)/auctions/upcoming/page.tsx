@@ -90,7 +90,7 @@ export default async function UpcomingAuctionsPage({ searchParams }: PageProps) 
       </div>
 
       {lots.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {lots.map((lot) => (
             <LotCard key={lot.id} lot={lot} showPrices={false} />
           ))}
