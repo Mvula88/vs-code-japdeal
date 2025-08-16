@@ -47,8 +47,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('Creating lot with data:', body);
     
-    const supabase = await createServerSupabaseClient();
-    
     // Use service role for admin operations to bypass RLS
     const { createServerSupabaseAdminClient } = await import('@/lib/supabase/server');
     const adminSupabase = await createServerSupabaseAdminClient();

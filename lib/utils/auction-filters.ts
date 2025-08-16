@@ -1,5 +1,23 @@
+interface LotWithCar {
+  id: string;
+  lot_number: string;
+  starting_price: number | null;
+  current_price: number | null;
+  sold_price: number | null;
+  car?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    mileage?: number;
+    fuel_type?: string | null;
+    transmission?: string | null;
+    body_type?: string | null;
+  } | null;
+  [key: string]: unknown;
+}
+
 export function applyAuctionFilters(
-  lots: any[],
+  lots: LotWithCar[],
   searchParams: { [key: string]: string | string[] | undefined }
 ) {
   let filteredData = lots;
