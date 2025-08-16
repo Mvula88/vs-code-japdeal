@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { CalendarIcon, Upload, Save, ArrowLeft, Plus, Trash2, Loader2, Star } from 'lucide-react';
+import { CalendarIcon, Upload, Save, ArrowLeft, Plus, Trash2, Loader2, Star, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CarMake {
@@ -298,6 +298,22 @@ export default function NewLotPage() {
 
       if (!response.ok) {
         const error = await response.json();
+        
+        // If it's a duplicate lot number error, regenerate and inform the user
+        if (error.error && error.error.includes('duplicate key')) {
+          // Generate a new unique lot number with timestamp
+          const newLotNumber = `LOT${Date.now().toString().slice(-8)}`;
+          setLotNumber(newLotNumber);
+          
+          toast({
+            title: 'Duplicate Lot Number',
+            description: 'The lot number was already taken. A new unique number has been generated. Please try again.',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+        
         throw new Error(error.error || 'Failed to create lot');
       }
 
@@ -375,12 +391,24 @@ export default function NewLotPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="lot-number">Lot Number (Auto-generated)</Label>
-                <Input 
-                  id="lot-number" 
-                  value={lotNumber} 
-                  disabled 
-                  className="bg-muted"
-                />
+                <div className="flex gap-2">
+                  <Input 
+                    id="lot-number" 
+                    value={lotNumber} 
+                    onChange={(e) => setLotNumber(e.target.value)}
+                    className="flex-1"
+                    placeholder="LOT0001"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={fetchNextLotNumber}
+                    title="Generate new lot number"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vin">VIN</Label>

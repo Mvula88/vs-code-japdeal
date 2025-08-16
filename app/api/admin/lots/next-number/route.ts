@@ -21,26 +21,43 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get the latest lot number
-    const { data: latestLot } = await supabase
+    // Get all lot numbers to find the highest number
+    const { data: lots, error: lotsError } = await supabase
       .from('lots')
       .select('lot_number')
-      .order('lot_number', { ascending: false })
-      .limit(1)
-      .single();
+      .like('lot_number', 'LOT%')
+      .order('created_at', { ascending: false });
 
     let nextNumber = 'LOT0001';
     
-    if (latestLot && latestLot.lot_number) {
-      // Extract number from lot number (e.g., LOT0023 -> 23)
-      const match = latestLot.lot_number.match(/LOT(\d+)/);
-      if (match) {
-        const currentNumber = parseInt(match[1], 10);
-        nextNumber = `LOT${String(currentNumber + 1).padStart(4, '0')}`;
+    if (lots && lots.length > 0) {
+      // Find the highest lot number
+      let maxNumber = 0;
+      
+      for (const lot of lots) {
+        if (lot.lot_number) {
+          const match = lot.lot_number.match(/LOT(\d+)/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (num > maxNumber) {
+              maxNumber = num;
+            }
+          }
+        }
       }
+      
+      // Generate next number
+      nextNumber = `LOT${String(maxNumber + 1).padStart(4, '0')}`;
     }
+    
+    // Add a timestamp component to ensure uniqueness in case of race conditions
+    const timestamp = Date.now().toString().slice(-3);
+    const uniqueNumber = `${nextNumber}-${timestamp}`;
 
-    return NextResponse.json({ nextLotNumber: nextNumber });
+    return NextResponse.json({ 
+      nextLotNumber: nextNumber,
+      uniqueLotNumber: uniqueNumber 
+    });
   } catch (error) {
     console.error('Error getting next lot number:', error);
     // Return a default if there's an error
