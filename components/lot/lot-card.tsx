@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -8,6 +11,7 @@ import { Lot } from '@/lib/types/database';
 import { formatCurrency, formatMileage, formatTimeAgo } from '@/lib/utils/format';
 import { ROUTES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import QuickViewModal from './quick-view-modal';
 
 interface LotCardProps {
   lot: Lot & {
@@ -18,6 +22,7 @@ interface LotCardProps {
 }
 
 export default function LotCard({ lot, showPrices = true }: LotCardProps) {
+  const [showQuickView, setShowQuickView] = useState(false);
   const thumbnailImage = lot.images?.find((img) => img.is_thumbnail) || lot.images?.[0];
   const timeLeft = lot.end_at ? new Date(lot.end_at).getTime() - Date.now() : 0;
   const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
@@ -106,7 +111,15 @@ export default function LotCard({ lot, showPrices = true }: LotCardProps) {
           
           {/* Bottom overlay - visible on hover */}
           <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <Button size="sm" className="w-full bg-white/90 text-black hover:bg-white backdrop-blur-sm">
+            <Button 
+              size="sm" 
+              className="w-full bg-white/90 text-black hover:bg-white backdrop-blur-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowQuickView(true);
+              }}
+            >
               <Zap className="h-3 w-3 mr-2" />
               Quick View
             </Button>
@@ -234,6 +247,13 @@ export default function LotCard({ lot, showPrices = true }: LotCardProps) {
           </Link>
         )}
       </CardFooter>
+      
+      {/* Quick View Modal */}
+      <QuickViewModal
+        lot={lot}
+        open={showQuickView}
+        onOpenChange={setShowQuickView}
+      />
     </Card>
   );
 }
