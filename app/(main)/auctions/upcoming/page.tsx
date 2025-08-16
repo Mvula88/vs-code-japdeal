@@ -1,8 +1,13 @@
 import LotCard from '@/components/lot/lot-card';
 import AuctionFilters from '@/components/auction/filters';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { applyAuctionFilters } from '@/lib/utils/auction-filters';
 
-async function getUpcomingLots() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function getUpcomingLots(searchParams: { [key: string]: string | string[] | undefined }) {
   try {
     const supabase = await createServerSupabaseClient();
     
@@ -58,15 +63,18 @@ async function getUpcomingLots() {
       };
     });
 
-    return transformedData;
+    // Apply filters
+    const filteredData = applyAuctionFilters(transformedData, searchParams);
+    return filteredData;
   } catch (error) {
     console.error('Error in getUpcomingLots:', error);
     return [];
   }
 }
 
-export default async function UpcomingAuctionsPage() {
-  const lots = await getUpcomingLots();
+export default async function UpcomingAuctionsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const lots = await getUpcomingLots(params);
 
   return (
     <div className="container mx-auto px-4 py-8">

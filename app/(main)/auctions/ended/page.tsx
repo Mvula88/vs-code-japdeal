@@ -1,6 +1,7 @@
 import LotCard from '@/components/lot/lot-card';
 import AuctionFilters from '@/components/auction/filters';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { applyAuctionFilters } from '@/lib/utils/auction-filters';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -62,23 +63,8 @@ async function getEndedLots(searchParams: { [key: string]: string | string[] | u
       };
     });
 
-    // Apply price filters
-    let filteredData = transformedData;
-    
-    if (searchParams.priceMin) {
-      const minPrice = parseFloat(String(searchParams.priceMin));
-      filteredData = filteredData.filter(lot => 
-        (lot.sold_price || 0) >= minPrice
-      );
-    }
-    
-    if (searchParams.priceMax) {
-      const maxPrice = parseFloat(String(searchParams.priceMax));
-      filteredData = filteredData.filter(lot => 
-        (lot.sold_price || 0) <= maxPrice
-      );
-    }
-
+    // Apply filters
+    const filteredData = applyAuctionFilters(transformedData, searchParams);
     return filteredData;
   } catch (error) {
     console.error('Error in getEndedLots:', error);

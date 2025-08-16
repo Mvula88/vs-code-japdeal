@@ -48,9 +48,13 @@ export async function POST(request: NextRequest) {
     console.log('Creating lot with data:', body);
     
     const supabase = await createServerSupabaseClient();
+    
+    // Use service role for admin operations to bypass RLS
+    const { createServerSupabaseAdminClient } = await import('@/lib/supabase/server');
+    const adminSupabase = await createServerSupabaseAdminClient();
 
-    // First create the car
-    const { data: carData, error: carError } = await supabase
+    // First create the car using admin client
+    const { data: carData, error: carError } = await adminSupabase
       .from('cars')
       .insert({
         make: body.make,
@@ -104,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Inserting lot data:', lotInsertData);
 
-    const { data: lotData, error: lotError } = await supabase
+    const { data: lotData, error: lotError } = await adminSupabase
       .from('lots')
       .insert(lotInsertData)
       .select()
@@ -113,7 +117,7 @@ export async function POST(request: NextRequest) {
     if (lotError) {
       console.error('Error creating lot:', lotError);
       // If lot creation fails, delete the car we just created
-      await supabase.from('cars').delete().eq('id', carData.id);
+      await adminSupabase.from('cars').delete().eq('id', carData.id);
       return NextResponse.json(
         { error: `Failed to create lot: ${lotError.message}` },
         { status: 400 }
