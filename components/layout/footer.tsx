@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Car, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import Logo from '@/components/ui/logo';
 
 export default function Footer() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,9 +32,8 @@ export default function Footer() {
       <footer className="border-t bg-slate-900 text-slate-100">
         <div className="container mx-auto px-4 py-12">
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Car className="h-8 w-8 text-primary" />
-              <h3 className="font-bold text-2xl">JapDEAL</h3>
+            <div className="flex justify-center mb-4">
+              <Logo size="lg" className="text-white" />
             </div>
             <p className="text-slate-400 mb-6 max-w-md mx-auto">
               Your trusted platform for Japanese car imports to Namibia
@@ -67,9 +67,8 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <Car className="h-8 w-8 text-primary" />
-              <h3 className="font-bold text-2xl">JapDEAL</h3>
+            <div className="mb-4">
+              <Logo size="lg" className="text-white" />
             </div>
             <p className="text-slate-400 mb-6 max-w-md">
               Your trusted platform for Japanese car imports to Namibia. Quality vehicles, transparent pricing, and professional service.

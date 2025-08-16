@@ -19,12 +19,13 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, Settings, LayoutDashboard, Shield, Menu, X, Car, Heart, Bell, TrendingUp, ChevronRight } from 'lucide-react';
+import { LogOut, Settings, LayoutDashboard, Shield, Menu, X, Heart, Bell, TrendingUp, ChevronRight } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Profile } from '@/lib/types/database';
 import { cn } from '@/lib/utils';
+import Logo from '@/components/ui/logo';
 
 interface NavbarProps {
   user: { email?: string; user_metadata?: { avatar_url?: string } } | null;
@@ -78,14 +79,9 @@ export default function Navbar({ user, profile }: NavbarProps) {
           <div className="flex items-center gap-8">
             <Link 
               href={ROUTES.HOME} 
-              className="flex items-center gap-2 group"
+              className="group"
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center group-hover:shadow-lg transition-all">
-                <Car className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">
-                Jap<span className="text-primary">DEAL</span>
-              </span>
+              <Logo size="md" className="group-hover:scale-105 transition-transform" />
             </Link>
             
             {/* Desktop Navigation */}
