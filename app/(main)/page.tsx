@@ -142,7 +142,7 @@ export default async function HomePage() {
           </div>
           
           {liveLots.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {liveLots.map((lot, index) => (
                 <div 
                   key={lot.id} 
@@ -194,7 +194,7 @@ export default async function HomePage() {
           </div>
           
           {endedLots.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {endedLots.map((lot, index) => (
                 <div 
                   key={lot.id} 
@@ -246,7 +246,7 @@ export default async function HomePage() {
           </div>
           
           {upcomingLots.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {upcomingLots.map((lot, index) => (
                 <div 
                   key={lot.id} 
