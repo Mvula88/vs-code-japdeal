@@ -294,5 +294,3 @@ export class ServerStorageClient {
     return urls;
   }
 }
-
-export const serverStorageClient = new ServerStorageClient();
