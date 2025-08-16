@@ -144,7 +144,8 @@ export default function BidPanel({
     );
   }
 
-  if (timeLeft.total <= 0) {
+  // Only check time if the auction is live and has an end_at value
+  if (lot.state === 'live' && lot.end_at && timeLeft.total <= 0) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -168,31 +169,33 @@ export default function BidPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Countdown Timer */}
-        <div className="bg-muted rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Time Remaining</span>
+        {/* Countdown Timer - only show if end_at exists */}
+        {lot.end_at && (
+          <div className="bg-muted rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Time Remaining</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div>
+                <div className="text-2xl font-bold">{timeLeft.days}</div>
+                <div className="text-xs text-muted-foreground">Days</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{timeLeft.hours}</div>
+                <div className="text-xs text-muted-foreground">Hours</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{timeLeft.minutes}</div>
+                <div className="text-xs text-muted-foreground">Min</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{timeLeft.seconds}</div>
+                <div className="text-xs text-muted-foreground">Sec</div>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <div>
-              <div className="text-2xl font-bold">{timeLeft.days}</div>
-              <div className="text-xs text-muted-foreground">Days</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{timeLeft.hours}</div>
-              <div className="text-xs text-muted-foreground">Hours</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{timeLeft.minutes}</div>
-              <div className="text-xs text-muted-foreground">Min</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{timeLeft.seconds}</div>
-              <div className="text-xs text-muted-foreground">Sec</div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Current Price */}
         <div className="space-y-2">
