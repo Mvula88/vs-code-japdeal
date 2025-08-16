@@ -95,7 +95,7 @@ export default function CookiesPage() {
                 <h2 className="text-2xl font-semibold mb-4">Managing Your Cookie Preferences</h2>
                 <div className="space-y-3">
                   <p className="text-muted-foreground leading-relaxed">
-                    You have control over the cookies we use. Here's how you can manage them:
+                    You have control over the cookies we use. Here&apos;s how you can manage them:
                   </p>
                   <ul className="space-y-2 text-muted-foreground text-sm">
                     <li className="flex items-start gap-2">
@@ -173,7 +173,7 @@ export default function CookiesPage() {
               We may update this Cookie Policy from time to time to reflect changes in our practices 
               or for other operational, legal, or regulatory reasons. We will notify you of any 
               material changes by posting the new Cookie Policy on this page and updating the 
-              "Last updated" date.
+              &ldquo;Last updated&rdquo; date.
             </p>
           </CardContent>
         </Card>

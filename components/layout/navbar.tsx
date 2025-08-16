@@ -19,7 +19,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, Settings, LayoutDashboard, Shield, Menu, X, Heart, Bell, TrendingUp, ChevronRight } from 'lucide-react';
+import { LogOut, Settings, LayoutDashboard, Shield, Menu, Heart, Bell, TrendingUp, ChevronRight } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
