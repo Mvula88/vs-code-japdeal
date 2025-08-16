@@ -7,6 +7,7 @@ import Link from 'next/link';
 interface TransformedLot {
   id: string;
   title: string;
+  lot_number: string;
   status: string;
   start_date: string;
   end_date: string;
@@ -61,6 +62,7 @@ export default async function AdminLotsPage() {
     lots = ((data as any[]) || []).map((lot) => ({
       id: lot.id,
       title: lot.lot_number,
+      lot_number: lot.lot_number,
       status: lot.state || 'draft',
       start_date: lot.start_at || lot.created_at,
       end_date: lot.end_at || lot.created_at,
