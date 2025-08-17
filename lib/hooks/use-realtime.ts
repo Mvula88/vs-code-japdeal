@@ -50,47 +50,54 @@ export function useRealtimeLot(lotId: string) {
 }
 
 export function useCountdown(endTime: string | null) {
+  const calculateTimeLeft = (endTimeStr: string | null) => {
+    if (!endTimeStr) {
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        total: -1, // Use -1 to indicate no end time
+      };
+    }
+    
+    const difference = new Date(endTimeStr).getTime() - new Date().getTime();
+    
+    if (difference > 0) {
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+        total: difference,
+      };
+    } else {
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        total: 0,
+      };
+    }
+  };
+
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
     minutes: number;
     seconds: number;
     total: number;
-  }>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    total: 0,
-  });
+  }>(() => calculateTimeLeft(endTime));
 
   useEffect(() => {
     if (!endTime) return;
 
-    const calculateTimeLeft = () => {
-      const difference = new Date(endTime).getTime() - new Date().getTime();
-      
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-          total: difference,
-        });
-      } else {
-        setTimeLeft({
-          days: 0,
-          hours: 0,
-          minutes: 0,
-          seconds: 0,
-          total: 0,
-        });
-      }
+    const updateTimeLeft = () => {
+      setTimeLeft(calculateTimeLeft(endTime));
     };
 
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
+    const timer = setInterval(updateTimeLeft, 1000);
 
     return () => clearInterval(timer);
   }, [endTime]);

@@ -145,7 +145,10 @@ export default function BidPanel({
   }
 
   // Only check time if the auction is live and has an end_at value
-  if (lot.state === 'live' && lot.end_at && timeLeft.total <= 0) {
+  // timeLeft.total === 0 means the auction has ended
+  // timeLeft.total === -1 means there's no end time
+  // timeLeft.total > 0 means the auction is still running
+  if (lot.state === 'live' && lot.end_at && timeLeft.total === 0) {
     return (
       <Card>
         <CardContent className="pt-6">

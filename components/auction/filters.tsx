@@ -5,12 +5,23 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Filter, Search, X } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AuctionFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+  const [carMakes, setCarMakes] = useState<{ id: string; name: string }[]>([]);
+  const [isLoadingMakes, setIsLoadingMakes] = useState(true);
 
   const [filters, setFilters] = useState({
     search: '',
@@ -19,6 +30,25 @@ export default function AuctionFilters() {
     yearMin: '',
     yearMax: '',
   });
+
+  // Fetch car makes on mount
+  useEffect(() => {
+    const fetchCarMakes = async () => {
+      setIsLoadingMakes(true);
+      const { data, error } = await supabase
+        .from('car_makes')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+      
+      if (!error && data) {
+        setCarMakes(data);
+      }
+      setIsLoadingMakes(false);
+    };
+
+    fetchCarMakes();
+  }, [supabase]);
 
   // Initialize filters from searchParams and count active filters
   useEffect(() => {
@@ -90,12 +120,23 @@ export default function AuctionFilters() {
           <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Make</Label>
-              <Input
-                placeholder="e.g., Toyota"
-                value={filters.make}
-                onChange={(e) => setFilters({ ...filters, make: e.target.value })}
-                className="h-9"
-              />
+              <Select
+                value={filters.make || 'all'}
+                onValueChange={(value) => setFilters({ ...filters, make: value === 'all' ? '' : value })}
+                disabled={isLoadingMakes}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder={isLoadingMakes ? "Loading..." : "Select make"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Makes</SelectItem>
+                  {carMakes.map((make) => (
+                    <SelectItem key={make.id} value={make.name}>
+                      {make.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Model</Label>
