@@ -203,7 +203,9 @@ export default async function LotDetailPage({ params }: PageProps) {
                 <h1 className="text-3xl font-bold">
                   {lot.car.year} {lot.car.make} {lot.car.model}
                 </h1>
-                {user && <WatchlistButton lotId={lot.id} />}
+                {user && (lot.state === 'live' || lot.state === 'upcoming') && (
+                  <WatchlistButton lotId={lot.id} />
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className={cn("px-3 py-1", getStatusColor(lot.state))}>
@@ -229,10 +231,28 @@ export default async function LotDetailPage({ params }: PageProps) {
                 <div className="text-2xl font-bold text-primary">{bidCount}</div>
                 <div className="text-xs text-muted-foreground">Total Bids</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">{formatCurrency(highestBid)}</div>
-                <div className="text-xs text-muted-foreground">Current Price</div>
-              </div>
+              
+              {/* Price display based on auction state */}
+              {lot.state === 'live' && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{formatCurrency(highestBid)}</div>
+                  <div className="text-xs text-muted-foreground">Current Price</div>
+                </div>
+              )}
+              {lot.state === 'upcoming' && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{formatCurrency(lot.starting_price || 0)}</div>
+                  <div className="text-xs text-muted-foreground">Starting Price</div>
+                </div>
+              )}
+              {lot.state === 'ended' && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{formatCurrency(lot.sold_price || highestBid)}</div>
+                  <div className="text-xs text-muted-foreground">Final Price</div>
+                </div>
+              )}
+              
+              {/* Time/Status display based on auction state */}
               {lot.state === 'live' && daysLeft !== null && (
                 <div className="text-center">
                   <div className="text-2xl font-bold">{daysLeft}d</div>

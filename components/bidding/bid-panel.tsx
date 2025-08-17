@@ -168,30 +168,65 @@ export default function BidPanel({
     minBid + (getMinIncrement() * 2),
   ];
 
-  // For upcoming and ended auctions - simplified display
-  if (lot.state !== 'live') {
+  // For upcoming auctions - show starting price and status
+  if (lot.state === 'upcoming') {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Auction Status</CardTitle>
+          <CardTitle>Upcoming Auction</CardTitle>
+          <Badge variant="secondary" className="w-fit">
+            NOT STARTED
+          </Badge>
         </CardHeader>
-        <CardContent>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {lot.state === 'upcoming' 
-                ? 'This auction has not started yet'
-                : 'This auction has ended'}
-            </AlertDescription>
-          </Alert>
-          {lot.state === 'ended' && (
-            <div className="mt-4 p-4 bg-muted rounded-lg">
-              <p className="text-sm font-medium">Final Price</p>
-              <p className="text-2xl font-bold text-primary">
-                {formatCurrency(currentPrice)}
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm font-medium text-blue-900">Starting Price</p>
+            <p className="text-2xl font-bold text-blue-700">
+              {formatCurrency(lot.starting_price || 0)}
+            </p>
+          </div>
+          {lot.start_at && (
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-xs text-muted-foreground">Auction Starts</p>
+              <p className="text-sm font-medium">
+                {new Date(lot.start_at).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </p>
             </div>
           )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // For ended auctions - show final price only
+  if (lot.state === 'ended') {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Auction Ended</CardTitle>
+          <Badge variant="outline" className="w-fit">
+            SOLD
+          </Badge>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-green-50 rounded-lg">
+            <p className="text-sm font-medium text-green-900">Final Price</p>
+            <p className="text-2xl font-bold text-green-700">
+              {formatCurrency(lot.sold_price || currentPrice || lot.starting_price || 0)}
+            </p>
+          </div>
+          <div className="text-center py-2">
+            <p className="text-sm text-muted-foreground">
+              {lot.bid_count || 0} total bids placed
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
