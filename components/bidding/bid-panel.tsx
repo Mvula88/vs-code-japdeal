@@ -22,6 +22,7 @@ interface BidPanelProps {
   isAuthenticated: boolean;
   canBid: boolean;
   onBidPlaced?: () => void;
+  onBidAmountChange?: (amount: number) => void;
 }
 
 export default function BidPanel({
@@ -31,14 +32,37 @@ export default function BidPanel({
   isAuthenticated,
   canBid,
   onBidPlaced,
+  onBidAmountChange,
 }: BidPanelProps) {
   const router = useRouter();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [bidAmount, setBidAmount] = useState('');
+  const [hasVisitedBefore, setHasVisitedBefore] = useState(false);
   const [currentPrice, setCurrentPrice] = useState(initialPrice);
   const [optimisticPrice, setOptimisticPrice] = useOptimistic(currentPrice);
   const timeLeft = useCountdown(lot.end_at);
+
+  // Check if user has visited before using localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const visited = localStorage.getItem('has_visited');
+      setHasVisitedBefore(!!visited);
+      if (!visited) {
+        localStorage.setItem('has_visited', 'true');
+      }
+    }
+  }, []);
+
+  // Notify parent when bid amount changes
+  useEffect(() => {
+    const amount = parseFloat(bidAmount);
+    if (!isNaN(amount) && amount > 0) {
+      onBidAmountChange?.(amount);
+    } else {
+      onBidAmountChange?.(currentPrice);
+    }
+  }, [bidAmount, currentPrice, onBidAmountChange]);
 
   // Calculate minimum bid increment
   const getMinIncrement = () => {
@@ -73,9 +97,26 @@ export default function BidPanel({
     };
   }, [lot.id, supabase]);
 
+  const handlePreBid = async () => {
+    if (!isAuthenticated) {
+      // Check if user has visited before via API
+      try {
+        const response = await fetch('/api/auth/check-visitor');
+        const data = await response.json();
+        const redirectPath = data.hasVisited ? ROUTES.AUTH.SIGN_IN : ROUTES.AUTH.SIGN_UP;
+        router.push(redirectPath);
+      } catch {
+        // Default to sign-in if API fails
+        router.push(ROUTES.AUTH.SIGN_IN);
+      }
+      return;
+    }
+    handleBid();
+  };
+
   const handleBid = async () => {
     if (!isAuthenticated) {
-      router.push(ROUTES.AUTH.SIGN_IN);
+      handlePreBid();
       return;
     }
 
@@ -127,10 +168,14 @@ export default function BidPanel({
     minBid + (getMinIncrement() * 2),
   ];
 
+  // For upcoming and ended auctions - simplified display
   if (lot.state !== 'live') {
     return (
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle>Auction Status</CardTitle>
+        </CardHeader>
+        <CardContent>
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
@@ -139,6 +184,14 @@ export default function BidPanel({
                 : 'This auction has ended'}
             </AlertDescription>
           </Alert>
+          {lot.state === 'ended' && (
+            <div className="mt-4 p-4 bg-muted rounded-lg">
+              <p className="text-sm font-medium">Final Price</p>
+              <p className="text-2xl font-bold text-primary">
+                {formatCurrency(currentPrice)}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -254,34 +307,33 @@ export default function BidPanel({
           ))}
         </div>
 
-        {/* Place Bid Button */}
-        {isAuthenticated ? (
-          <Button
-            className="w-full"
-            size="lg"
-            onClick={handleBid}
-            disabled={isLoading || !canBid}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Placing Bid...
-              </>
-            ) : (
-              <>
-                <TrendingUp className="mr-2 h-4 w-4" />
-                Place Bid
-              </>
-            )}
-          </Button>
-        ) : (
-          <Button
-            className="w-full"
-            size="lg"
-            onClick={() => router.push(ROUTES.AUTH.SIGN_IN)}
-          >
-            Sign In to Bid
-          </Button>
+        {/* Pre-Bid Button - Visible to all */}
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={handlePreBid}
+          disabled={isLoading || (isAuthenticated && !canBid)}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Placing Pre-Bid...
+            </>
+          ) : (
+            <>
+              <TrendingUp className="mr-2 h-4 w-4" />
+              {isAuthenticated ? 'Place Pre-Bid' : 'Pre-Bid Now'}
+            </>
+          )}
+        </Button>
+
+        {/* Show sign in prompt for non-authenticated users */}
+        {!isAuthenticated && (
+          <p className="text-xs text-center text-muted-foreground">
+            {hasVisitedBefore 
+              ? 'Sign in to place your pre-bid' 
+              : 'Sign up to place your pre-bid'}
+          </p>
         )}
 
         {/* Bid Count */}

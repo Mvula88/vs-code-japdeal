@@ -39,6 +39,7 @@ export default function CostBreakdown({ costSettings, vehiclePrice = 0 }: CostBr
   });
 
   useEffect(() => {
+    setCustomPrice(vehiclePrice.toString());
     calculateCosts(vehiclePrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehiclePrice, costSettings]);

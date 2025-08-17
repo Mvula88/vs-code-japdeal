@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import BidPanel from '@/components/bidding/bid-panel';
+import BidSection from '@/components/bidding/bid-section';
 import BidHistory from '@/components/bidding/bid-history';
-import CostBreakdown from '@/components/bidding/cost-breakdown';
 import WatchlistButton from '@/components/lot/watchlist-button';
 import ImageGallery from '@/components/lot/image-gallery';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -234,10 +233,22 @@ export default async function LotDetailPage({ params }: PageProps) {
                 <div className="text-2xl font-bold">{formatCurrency(highestBid)}</div>
                 <div className="text-xs text-muted-foreground">Current Price</div>
               </div>
-              {daysLeft !== null && (
+              {lot.state === 'live' && daysLeft !== null && (
                 <div className="text-center">
                   <div className="text-2xl font-bold">{daysLeft}d</div>
                   <div className="text-xs text-muted-foreground">Time Left</div>
+                </div>
+              )}
+              {lot.state === 'upcoming' && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">Soon</div>
+                  <div className="text-xs text-muted-foreground">Starting</div>
+                </div>
+              )}
+              {lot.state === 'ended' && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-600">Ended</div>
+                  <div className="text-xs text-muted-foreground">Status</div>
                 </div>
               )}
             </div>
@@ -518,23 +529,15 @@ export default async function LotDetailPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Bid Panel - Sticky on desktop */}
+            {/* Bid Section - Sticky on desktop */}
             <div className="lg:sticky lg:top-4">
-              <BidPanel
+              <BidSection
                 lot={lot}
-                currentPrice={lot.current_price || lot.starting_price || 0}
                 bidIncrements={bidIncrements}
+                costSettings={costSettings}
                 isAuthenticated={!!user}
                 canBid={userCanBid}
               />
-              
-              {/* Cost Breakdown */}
-              <div className="mt-6">
-                <CostBreakdown
-                  costSettings={costSettings}
-                  vehiclePrice={lot.current_price || lot.starting_price || 0}
-                />
-              </div>
 
               {/* Seller Information */}
               <Card className="mt-6">
